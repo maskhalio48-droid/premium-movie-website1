@@ -1,187 +1,561 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Premium Movies</title>
+<title>Tamilflix | Premium Entertainment</title>
+<meta name="description" content="Explore Tamilflix, your premium destination for movies and series.">
+<meta name="theme-color" content="#080808">
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            background: #0b0b0b;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
+:root {
+    --red: #ff1238;
+    --bg: #08090c;
+    --card: #15161b;
+    --text: #ffffff;
+    --muted: #a8a8b2;
+}
 
-        header {
-            background: #151515;
-            padding: 20px;
-            border-bottom: 2px solid red;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+}
 
-        header h1 {
-            color: red;
-        }
+button, input {
+    font: inherit;
+}
 
-        header button {
-            padding: 10px 18px;
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
+button {
+    cursor: pointer;
+}
 
-        .hero {
-            padding: 50px 20px;
-            text-align: center;
-            background: linear-gradient(#300000, #0b0b0b);
-        }
+header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(8,9,12,.97);
+    border-bottom: 1px solid #292930;
+    padding: 17px 4%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
 
-        .hero h2 {
-            font-size: 32px;
-            margin-bottom: 15px;
-        }
+.logo {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    white-space: nowrap;
+}
 
-        .search {
-            margin-top: 25px;
-            padding: 12px;
-            width: min(90%, 450px);
-            border: 1px solid red;
-            border-radius: 5px;
-            background: #222;
-            color: white;
-        }
+.logo span {
+    color: var(--red);
+}
 
-        .movies {
-            padding: 25px 20px;
-        }
+.logo-icon {
+    color: var(--red);
+    margin-right: 6px;
+}
 
-        .movie-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
+nav {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
 
-        .movie {
-            background: #191919;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #333;
-        }
+nav a {
+    text-decoration: none;
+    color: #e7e7ec;
+    font-size: 14px;
+    transition: color .2s;
+}
 
-        .poster {
-            height: 190px;
-            background: linear-gradient(135deg, #450000, #111);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 45px;
-        }
+nav a:hover {
+    color: var(--red);
+}
 
-        .movie h3 {
-            padding: 12px;
-            font-size: 16px;
-        }
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-        .movie p {
-            padding: 0 12px 15px;
-            color: #bbb;
-            font-size: 13px;
-        }
+.search {
+    width: 220px;
+    background: #111216;
+    color: white;
+    border: 1px solid #44444c;
+    border-radius: 25px;
+    padding: 11px 15px;
+    outline: none;
+}
 
-        footer {
-            text-align: center;
-            padding: 25px;
-            margin-top: 30px;
-            background: #151515;
-            border-top: 2px solid red;
-            color: #aaa;
-        }
+.search:focus {
+    border-color: var(--red);
+}
 
-        footer strong {
-            color: red;
-        }
-    </style>
+.btn {
+    padding: 11px 18px;
+    border: 1px solid #555;
+    border-radius: 7px;
+    color: white;
+    background: transparent;
+    font-weight: bold;
+}
+
+.btn-red {
+    background: var(--red);
+    border-color: var(--red);
+}
+
+.btn:hover {
+    filter: brightness(1.15);
+}
+
+.hero {
+    min-height: 390px;
+    padding: 55px 4%;
+    display: flex;
+    align-items: center;
+    background:
+        linear-gradient(90deg, #08090c 0%, rgba(8,9,12,.96) 25%,
+        rgba(8,9,12,.35) 70%, rgba(8,9,12,.1) 100%),
+        linear-gradient(0deg, #08090c 0%, transparent 35%),
+        url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1800&q=85")
+        center 45% / cover no-repeat;
+    border-bottom: 1px solid #24242a;
+}
+
+.hero-content {
+    max-width: 510px;
+}
+
+.badge {
+    display: inline-block;
+    background: #b50926;
+    padding: 7px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 18px;
+}
+
+.hero h1 {
+    font-size: clamp(38px, 6vw, 64px);
+    line-height: 1.05;
+    margin-bottom: 15px;
+}
+
+.hero-meta {
+    color: #d4d4da;
+    font-size: 14px;
+    margin-bottom: 18px;
+}
+
+.hero p {
+    color: #dddde3;
+    line-height: 1.7;
+    font-size: 15px;
+    margin-bottom: 24px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.hero-buttons button {
+    padding: 14px 23px;
+}
+
+.section {
+    padding: 30px 4%;
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    gap: 12px;
+}
+
+.section-heading h2 {
+    font-size: 23px;
+}
+
+.section-heading a {
+    color: var(--red);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 17px;
+}
+
+.movie {
+    min-width: 0;
+    cursor: pointer;
+    transition: transform .2s;
+}
+
+.movie:hover {
+    transform: translateY(-5px);
+}
+
+.poster {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    border-radius: 9px;
+    background: linear-gradient(145deg, #40111c, #16171b 70%);
+    border: 1px solid #33333a;
+}
+
+.poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .3s;
+}
+
+.movie:hover .poster img {
+    transform: scale(1.06);
+}
+
+.poster-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 45px;
+    background: linear-gradient(145deg, #5b0b20, #101116);
+}
+
+.movie h3 {
+    font-size: 15px;
+    margin-top: 11px;
+    overflow-wrap: anywhere;
+}
+
+.movie-info {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+.empty {
+    display: none;
+    color: var(--muted);
+    padding: 25px 0;
+}
+
+footer {
+    border-top: 1px solid #292930;
+    background: #101115;
+    padding: 30px 4%;
+    text-align: center;
+    color: #aaaab3;
+    font-size: 13px;
+    line-height: 2;
+}
+
+footer strong {
+    color: var(--red);
+}
+
+footer .footer-logo {
+    font-size: 22px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 5px;
+}
+
+footer .footer-logo span {
+    color: var(--red);
+}
+
+@media (max-width: 1050px) {
+    .movie-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    header {
+        gap: 15px;
+    }
+
+    nav {
+        gap: 13px;
+    }
+}
+
+@media (max-width: 700px) {
+    header {
+        padding: 15px 4%;
+    }
+
+    .logo {
+        font-size: 25px;
+    }
+
+    nav {
+        order: 3;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    nav a {
+        font-size: 13px;
+    }
+
+    .header-right {
+        margin-left: auto;
+    }
+
+    .search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .header-right {
+        width: 100%;
+    }
+
+    .header-right .btn {
+        padding: 10px 12px;
+    }
+
+    .hero {
+        min-height: 360px;
+        padding: 45px 5%;
+        background-position: center;
+    }
+
+    .hero-content {
+        max-width: 100%;
+    }
+
+    .hero h1 {
+        font-size: 43px;
+    }
+
+    .section {
+        padding: 25px 4%;
+    }
+
+    .movie-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px 13px;
+    }
+
+    .section-heading h2 {
+        font-size: 20px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-    <header>
-        <h1>PREMIUM MOVIES</h1>
-        <button onclick="alert('Login feature coming soon!')">
-            Login / Register
-        </button>
-    </header>
+<header>
+    <a href="#" class="logo" style="text-decoration:none;color:white">
+        <span class="logo-icon">▶</span>Tamil<span>flix</span>
+    </a>
 
-    <section class="hero">
-        <h2>Discover Your Next Movie</h2>
-        <p>Explore movies and watch your favourites.</p>
+    <nav>
+        <a href="#home">⌂ Home</a>
+        <a href="#movies">▣ Movies</a>
+        <a href="#series">▤ Series</a>
+        <a href="#mylist" onclick="showMyList(event)">♡ My List</a>
+    </nav>
 
+    <div class="header-right">
         <input
             type="search"
-            id="search"
+            id="searchInput"
             class="search"
-            placeholder="Search movies..."
-            oninput="searchMovies()"
+            placeholder="⌕ Search movies..."
+            aria-label="Search movies"
         >
-    </section>
+        <button class="btn" onclick="showLogin()">Login</button>
+        <button class="btn btn-red" onclick="showRegister()">Register</button>
+    </div>
+</header>
 
-    <section class="movies">
-        <h2>🎬 Explore Movies</h2>
-
-        <div class="movie-grid" id="movieGrid">
-
-            <div class="movie" data-title="Sample Movie">
-                <div class="poster">🎬</div>
-                <h3>Sample Movie</h3>
-                <p>Movie details will appear here.</p>
+<main>
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <span class="badge">FEATURED</span>
+            <h1>Welcome to<br>Tamilflix</h1>
+            <div class="hero-meta">Movies &nbsp; • &nbsp; Series &nbsp; • &nbsp; Entertainment</div>
+            <p>
+                Discover your next favourite film.
+                Explore movies, browse collections and enjoy
+                authorised video content in one place.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-red" onclick="goToMovies()">▶ Explore Movies</button>
+                <button class="btn" onclick="showMyList()">＋ My List</button>
             </div>
-
-            <div class="movie" data-title="Action Movie">
-                <div class="poster">🍿</div>
-                <h3>Action Movie</h3>
-                <p>Movie details will appear here.</p>
-            </div>
-
-            <div class="movie" data-title="Drama Movie">
-                <div class="poster">🎥</div>
-                <h3>Drama Movie</h3>
-                <p>Movie details will appear here.</p>
-            </div>
-
         </div>
     </section>
 
-    <footer>
-        <p>Website Developed by <strong>Jayantha Dilan</strong></p>
-    </footer>
+    <section class="section" id="movies">
+        <div class="section-heading">
+            <h2>🔥 Trending Movies</h2>
+            <a href="#movies">Explore ↓</a>
+        </div>
 
-    <script>
-        function searchMovies() {
-            const query = document
-                .getElementById("search")
-                .value.toLowerCase();
+        <div class="movie-grid" id="movieGrid">
+            <article class="movie" data-title="Leo">
+                <div class="poster">
+                    <div class="poster-placeholder">🎬</div>
+                </div>
+                <h3>Leo</h3>
+                <div class="movie-info">Action • Thriller</div>
+            </article>
 
-            document.querySelectorAll(".movie").forEach(movie => {
-                const title = movie.dataset.title.toLowerCase();
-                movie.style.display = title.includes(query)
-                    ? ""
-                    : "none";
-            });
-        }
-    </script>
+            <article class="movie" data-title="Jailer">
+                <div class="poster">
+                    <div class="poster-placeholder">🎞️</div>
+                </div>
+                <h3>Jailer</h3>
+                <div class="movie-info">Action • Drama</div>
+            </article>
+
+            <article class="movie" data-title="Vikram">
+                <div class="poster">
+                    <div class="poster-placeholder">🎥</div>
+                </div>
+                <h3>Vikram</h3>
+                <div class="movie-info">Action • Thriller</div>
+            </article>
+
+            <article class="movie" data-title="Master">
+                <div class="poster">
+                    <div class="poster-placeholder">🍿</div>
+                </div>
+                <h3>Master</h3>
+                <div class="movie-info">Action • Drama</div>
+            </article>
+
+            <article class="movie" data-title="Thunivu">
+                <div class="poster">
+                    <div class="poster-placeholder">🎬</div>
+                </div>
+                <h3>Thunivu</h3>
+                <div class="movie-info">Action • Thriller</div>
+            </article>
+
+            <article class="movie" data-title="Varisu">
+                <div class="poster">
+                    <div class="poster-placeholder">🎞️</div>
+                </div>
+                <h3>Varisu</h3>
+                <div class="movie-info">Drama • Family</div>
+            </article>
+        </div>
+
+        <p class="empty" id="emptyMessage">No matching titles found.</p>
+    </section>
+
+    <section class="section" id="series">
+        <div class="section-heading">
+            <h2>📺 Popular Series</h2>
+            <a href="#series">Explore ↓</a>
+        </div>
+
+        <div class="movie-grid">
+            <article class="movie" data-title="Mystery Series">
+                <div class="poster">
+                    <div class="poster-placeholder">📺</div>
+                </div>
+                <h3>Mystery Series</h3>
+                <div class="movie-info">Mystery • Series</div>
+            </article>
+
+            <article class="movie" data-title="Drama Series">
+                <div class="poster">
+                    <div class="poster-placeholder">🎭</div>
+                </div>
+                <h3>Drama Series</h3>
+                <div class="movie-info">Drama • Series</div>
+            </article>
+
+            <article class="movie" data-title="Adventure Series">
+                <div class="poster">
+                    <div class="poster-placeholder">🌌</div>
+                </div>
+                <h3>Adventure Series</h3>
+                <div class="movie-info">Adventure • Series</div>
+            </article>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="footer-logo">Tamil<span>flix</span></div>
+    <p>Discover entertainment. Explore stories.</p>
+    <p>Website Developed by <strong>Jayantha Dilan</strong></p>
+    <p>Only content authorised for distribution should be uploaded or shared.</p>
+</footer>
+
+<script>
+const searchInput = document.getElementById("searchInput");
+
+searchInput.addEventListener("input", function () {
+    const query = this.value.trim().toLowerCase();
+    const movies = document.querySelectorAll("#movieGrid .movie");
+    let visibleCount = 0;
+
+    movies.forEach(movie => {
+        const title = (movie.dataset.title || "").toLowerCase();
+        const visible = title.includes(query);
+
+        movie.style.display = visible ? "" : "none";
+
+        if (visible) visibleCount++;
+    });
+
+    document.getElementById("emptyMessage").style.display =
+        visibleCount === 0 ? "block" : "none";
+});
+
+function goToMovies() {
+    document.getElementById("movies").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+function showLogin() {
+    alert("Login system will be added in the next step.");
+}
+
+function showRegister() {
+    alert("Registration system will be added in the next step.");
+}
+
+function showMyList(event) {
+    if (event) event.preventDefault();
+    alert("Your personal movie list will be added in a future step.");
+}
+</script>
 
 </body>
-  </html>
+            </html>
