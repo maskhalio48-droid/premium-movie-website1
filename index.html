@@ -46,6 +46,68 @@
 <dialog class="modal player-modal" id="playerModal"><button class="modal-close" data-close="playerModal" aria-label="Close player">×</button><h2 id="playerTitle">Now Playing</h2><p class="player-language" id="playerLanguage"></p><div class="video-frame" id="videoFrame"><p>Choose a video link to play it here.</p></div><p class="player-note">Playback works here when the video owner allows embedding.</p></dialog>
 <dialog class="modal auth-modal" id="authModal"><button class="modal-close" data-close="authModal" aria-label="Close">×</button><h2 id="authHeading">Login</h2><p class="muted">Sign in to your Tamilflix account.</p><form id="authForm"><label>Email<input type="email" id="authEmail" required placeholder="you@example.com"></label><label>Password<input type="password" id="authPassword" required minlength="6" placeholder="At least 6 characters"></label><button class="btn btn-red btn-full" type="submit" id="authSubmit">Continue</button></form><p class="form-message" id="authMessage" role="status"></p></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
+<dialog class="modal" id="adminModal">
+  <button class="modal-close" data-close="adminModal" aria-label="Close">×</button>
+
+  <h2>⚙️ Tamilflix Admin Panel</h2>
+  <p class="muted">Manage your movie catalogue.</p>
+
+  <form id="movieForm">
+    <input type="hidden" id="movieId">
+
+    <label>Movie Title
+      <input type="text" id="movieTitle" required>
+    </label>
+
+    <label>Year
+      <input type="text" id="movieYear" placeholder="2026">
+    </label>
+
+    <label>Category
+      <select id="movieCategory" required>
+        <option value="movie">Movie</option>
+        <option value="marvel">Marvel</option>
+        <option value="anime">Anime</option>
+        <option value="series">Series</option>
+      </select>
+    </label>
+
+    <label>Genre
+      <input type="text" id="movieGenre" placeholder="Action, Drama">
+    </label>
+
+    <label>Rating
+      <input type="text" id="movieRating" placeholder="U, UA, 13+">
+    </label>
+
+    <label>Poster Image URL
+      <input type="url" id="moviePoster" placeholder="https://..." required>
+    </label>
+
+    <label>Backdrop Image URL
+      <input type="url" id="movieBackdrop" placeholder="https://...">
+    </label>
+
+    <label>Description
+      <textarea id="movieDescription" rows="3"></textarea>
+    </label>
+
+    <label>Video URL
+      <input type="url" id="movieVideo" placeholder="https://...">
+    </label>
+
+    <label>Language Links (JSON format)
+      <textarea id="movieLanguages" rows="5"
+        placeholder='[{"language":"Tamil","videoUrl":"https://..."}]'></textarea>
+    </label>
+
+    <button class="btn btn-red btn-full" type="submit">Save Movie</button>
+    <p id="adminMessage" class="form-message" role="status"></p>
+  </form>
+
+  <h3>Existing Movies</h3>
+  <div id="adminMovieList"></div>
+    </dialog>
+  <script src="supabase-config.js"></script>
 <script src="script.js"></script>
 </body></html>
