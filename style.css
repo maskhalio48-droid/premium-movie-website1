@@ -908,3 +908,38 @@ footer {
     font-size: 12px;
   }
 }
+/* Fix Tamilflix login and register visibility */
+
+.auth-buttons .btn[hidden],
+.auth-buttons button[hidden] {
+  display: none !important;
+}
+
+#loginBtn[style*="display: none"],
+#registerBtn[style*="display: none"] {
+  display: none !important;
+}
+
+.account-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.account-email {
+  color: #ffffff;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+#logoutBtn {
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .account-area {
+    width: 100%;
+  }
+}
