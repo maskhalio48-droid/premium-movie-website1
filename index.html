@@ -556,6 +556,194 @@ function showMyList(event) {
     alert("Your personal movie list will be added in a future step.");
 }
 </script>
+<!-- Tamilflix Authentication -->
+<div id="auth-area" style="
+position:fixed;top:15px;right:15px;z-index:9999;
+display:flex;gap:8px;flex-wrap:wrap;
+">
+  <button onclick="openAuth('login')">Login</button>
+  <button onclick="openAuth('signup')">Register</button>
+</div>
 
+<div id="auth-box" style="
+display:none;position:fixed;inset:0;background:#000d;
+z-index:10000;align-items:center;justify-content:center;
+">
+  <div style="
+  background:#181818;color:white;padding:25px;
+  width:85%;max-width:350px;border-radius:12px;
+  font-family:Arial;
+  ">
+    <h2 style="color:#e50914">Tamilflix Account</h2>
+
+    <form id="auth-form">
+      <input id="auth-email" type="email"
+      placeholder="Email address" required
+      style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0;">
+
+      <input id="auth-password" type="password"
+      placeholder="Password (minimum 6 characters)"
+      minlength="6" required
+      style="box-sizing:border-box;width:100%;padding:12px;margin:8px 0;">
+
+      <button id="auth-submit" type="submit"
+      style="width:100%;padding:12px;background:#e50914;color:white;border:0;">
+      Login
+      </button>
+    </form>
+
+    <p id="auth-message" style="overflow-wrap:anywhere"></p>
+
+    <button onclick="closeAuth()"
+    style="padding:10px;">Close</button>
+
+    <button id="logout-button" onclick="logoutUser()"
+    style="display:none;padding:10px;">Logout</button>
+
+    <div id="admin-area" style="display:none;margin-top:15px;">
+      <h3 style="color:#e50914">Admin Panel</h3>
+      <p>Admin login successful!</p>
+      <p>Video upload features will be added next.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://ciixfxvzlqcbmfdhbqbx.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EEibbzI3PHIVGv8inmFsIg_QiIPmnjB";
+
+const tamilflixSupabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+let authMode = "login";
+
+function openAuth(mode) {
+  authMode = mode;
+  document.getElementById("auth-box").style.display = "flex";
+  document.getElementById("auth-submit").textContent =
+    mode === "login" ? "Login" : "Create Account";
+  document.getElementById("auth-message").textContent = "";
+}
+
+function closeAuth() {
+  document.getElementById("auth-box").style.display = "none";
+}
+
+async function checkAccount() {
+  const { data: { user } } =
+    await tamilflixSupabase.auth.getUser();
+
+  const area = document.getElementById("auth-area");
+  const adminArea = document.getElementById("admin-area");
+  const logoutButton = document.getElementById("logout-button");
+
+  adminArea.style.display = "none";
+  logoutButton.style.display = "none";
+
+  if (!user) {
+    area.innerHTML = `
+      <button onclick="openAuth('login')">Login</button>
+      <button onclick="openAuth('signup')">Register</button>
+    `;
+    return;
+  }
+
+  area.innerHTML = `
+    <span style="color:white;background:#222;padding:8px;">
+      ${user.email.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+    </span>
+    <button onclick="closeAuth()">Close</button>
+  `;
+
+  document.getElementById("auth-box").style.display = "flex";
+  document.getElementById("auth-message").textContent =
+    "Logged in successfully.";
+
+  logoutButton.style.display = "inline-block";
+
+  const { data, error } = await tamilflixSupabase
+    .from("admins")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!error && data) {
+    adminArea.style.display = "block";
+  }
+}
+
+document.getElementById("auth-form").addEventListener(
+  "submit",
+  async function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("auth-email").value.trim();
+    const password = document.getElementById("auth-password").value;
+    const message = document.getElementById("auth-message");
+    const submit = document.getElementById("auth-submit");
+
+    submit.disabled = true;
+    message.textContent = "Please wait...";
+
+    try {
+      let result;
+
+      if (authMode === "signup") {
+        result = await tamilflixSupabase.auth.signUp({
+          email,
+          password
+        });
+      } else {
+        result = await tamilflixSupabase.auth.signInWithPassword({
+          email,
+          password
+        });
+      }
+
+      if (result.error) throw result.error;
+
+      if (authMode === "signup" && !result.data.session) {
+        message.textContent =
+          "Account created. Check your email to confirm your account.";
+      } else {
+        message.textContent = "Success!";
+        await checkAccount();
+      }
+    } catch (error) {
+      message.textContent = error.message;
+    } finally {
+      submit.disabled = false;
+    }
+  }
+);
+
+async function logoutUser() {
+  const { error } = await tamilflixSupabase.auth.signOut();
+
+  if (error) {
+    document.getElementById("auth-message").textContent = error.message;
+    return;
+  }
+
+  document.getElementById("auth-message").textContent =
+    "Logged out successfully.";
+  document.getElementById("admin-area").style.display = "none";
+  document.getElementById("logout-button").style.display = "none";
+  document.getElementById("auth-area").innerHTML = `
+    <button onclick="openAuth('login')">Login</button>
+    <button onclick="openAuth('signup')">Register</button>
+  `;
+}
+
+tamilflixSupabase.auth.onAuthStateChange(() => {
+  setTimeout(checkAccount, 0);
+});
+
+checkAccount();
+</script>
 </body>
             </html>
