@@ -943,3 +943,7 @@ footer {
     width: 100%;
   }
 }
+#loginBtn[hidden],
+#registerBtn[hidden] {
+  display: none !important;
+}
