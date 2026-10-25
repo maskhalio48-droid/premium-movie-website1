@@ -49,7 +49,57 @@ function toggleList(t){const list=getMyList();setMyList(list.includes(t.id)?list
 function bindCards(){document.querySelectorAll(".poster-card").forEach(c=>{const go=()=>{const t=titles.find(x=>x.id===c.dataset.id);if(t)openDetails(t)};c.onclick=go;c.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}})}
 function setSection(s){activeSection=s;if(s==="home")query="";$("searchInput").value=query;document.querySelectorAll(".nav-link").forEach(b=>b.classList.toggle("active",b.dataset.section===s));renderRows();if(innerWidth<800)$("mainNav").classList.remove("open");scrollTo({top:0,behavior:"smooth"})}
 function showAuth(mode){$("authHeading").textContent=mode==="login"?"Login":"Create Account";$("authSubmit").textContent=mode==="login"?"Login":"Register";$("authMessage").textContent="";$("authModal").showModal()}
-function init(){$("yearNow").textContent=new Date().getFullYear();renderRows();renderHero();restartSlider();$("prevSlide").onclick=()=>{nextSlide(-1);restartSlider()};$("nextSlide").onclick=()=>{nextSlide(1);restartSlider()};$("searchInput").addEventListener("input",e=>{query=e.target.value.trim();activeSection="home";renderRows()});document.querySelectorAll("[data-section]").forEach(b=>b.onclick=()=>setSection(b.dataset.section));$("menuToggle").onclick=()=>$("mainNav").classList.toggle("open");$("loginBtn").onclick=()=>showAuth("login");$("registerBtn").onclick=()=>showAuth("register");document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$ (b.dataset.close).close());document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close()}));$("playerModal").addEventListener("close",()=>{$("videoFrame").innerHTML=""});$("authForm").onsubmit=e=>{e.preventDefault();$("authMessage").textContent="Demo only: connect Supabase Auth to enable real accounts."};let x=0;$("hero").addEventListener("touchstart",e=>x=e.changedTouches[0].screenX,{passive:true});$("hero").addEventListener("touchend",e=>{const d=e.changedTouches[0].screenX-x;if(Math.abs(d)>45){nextSlide(d<0?1:-1);restartSlider()}},{passive:true})}
+function init(){$("yearNow").textContent=new Date().getFullYear();renderRows();renderHero();restartSlider();$("prevSlide").onclick=()=>{nextSlide(-1);restartSlider()};$("nextSlide").onclick=()=>{nextSlide(1);restartSlider()};$("searchInput").addEventListener("input",e=>{query=e.target.value.trim();activeSection="home";renderRows()});document.querySelectorAll("[data-section]").forEach(b=>b.onclick=()=>setSection(b.dataset.section));$("menuToggle").onclick=()=>$("mainNav").classList.toggle("open");$("loginBtn").onclick=()=>showAuth("login");$("registerBtn").onclick=()=>showAuth("register");document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$ (b.dataset.close).close());document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close()}));$("playerModal").addEventListener("close",()=>{$("videoFrame").innerHTML=""});$("authForm").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  const message = $("authMessage");
+  const button = $("authSubmit");
+
+  if (!window.supabase || !window.SUPABASE_URL ||
+      !window.SUPABASE_PUBLISHABLE_KEY) {
+    message.textContent = "Supabase configuration missing. Please check setup.";
+    return;
+  }
+
+  const client = window.tamilflixSupabase ||
+    (window.tamilflixSupabase = window.supabase.createClient(
+      window.SUPABASE_URL,
+      window.SUPABASE_PUBLISHABLE_KEY
+    ));
+
+  button.disabled = true;
+  message.textContent = "Please wait...";
+
+  try {
+    if ($("authHeading").textContent === "Login") {
+      const { error } = await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      message.textContent = "Login successful!";
+    } else {
+      const { data, error } = await client.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      message.textContent = data.session
+        ? "Account created successfully!"
+        : "Account created. Please check your email to confirm it.";
+    }
+  } catch (error) {
+    message.textContent = error.message || "Something went wrong.";
+  } finally {
+    button.disabled = false;
+  }
+};let x=0;$("hero").addEventListener("touchstart",e=>x=e.changedTouches[0].screenX,{passive:true});$("hero").addEventListener("touchend",e=>{const d=e.changedTouches[0].screenX-x;if(Math.abs(d)>45){nextSlide(d<0?1:-1);restartSlider()}},{passive:true})}
 document.addEventListener("DOMContentLoaded",init);
 
 /*
