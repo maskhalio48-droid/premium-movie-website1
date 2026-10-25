@@ -866,3 +866,45 @@ footer {
     font-size: 12px;
   }
     }
+/* Tamilflix Login and Register visibility fix */
+.topbar .auth-buttons {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+}
+
+.topbar .auth-buttons .btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 800px) {
+  .topbar {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    min-height: 76px;
+  }
+
+  .topbar .auth-buttons {
+    display: flex !important;
+    width: 100%;
+    order: 10;
+    padding: 8px 0;
+  }
+
+  .topbar .auth-buttons .btn {
+    display: inline-flex !important;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+}
