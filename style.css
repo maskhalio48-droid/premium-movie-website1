@@ -830,3 +830,39 @@ footer {
     font-size: 12px;
   }
 }
+/* Fix Login and Register visibility on mobile */
+.auth-buttons {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.auth-buttons .btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+@media (max-width: 800px) {
+  .topbar {
+    flex-wrap: wrap;
+    padding: 10px 3%;
+  }
+
+  .auth-buttons {
+    display: flex !important;
+    width: 100%;
+    justify-content: flex-end;
+    order: 5;
+  }
+
+  .auth-buttons .btn {
+    font-size: 12px;
+  }
+    }
