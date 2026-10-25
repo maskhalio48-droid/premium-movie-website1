@@ -82,6 +82,8 @@ function init(){$("yearNow").textContent=new Date().getFullYear();renderRows();r
       if (error) throw error;
 
       message.textContent = "Login successful!";
+$("loginBtn").style.display = "none";
+$("registerBtn").style.display = "none";
     } else {
       const { data, error } = await client.auth.signUp({
         email,
