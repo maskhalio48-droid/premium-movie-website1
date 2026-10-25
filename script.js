@@ -604,14 +604,56 @@ function openPlayer(t, url = "", language = "") {
 
   const embed = getEmbed(url);
 
-  $("videoFrame").innerHTML = embed
-    ? `<iframe
+  const videoFrame = $("videoFrame");
+
+  // Direct video URL check
+  const isDirectVideo =
+    /\.(mp4|webm|ogg)(\?.*)?$/i.test(url || "") ||
+    (url || "").includes("/storage/v1/object/public/");
+
+  if (isDirectVideo) {
+    videoFrame.innerHTML = `
+      <video
+        id="tamilflixVideo"
+        controls
+        playsinline
+        preload="metadata"
+        style="width:100%;max-height:70vh;background:#000;"
+      >
+        <source src="${esc(url)}">
+        Your browser does not support HTML video.
+      </video>
+
+      <a
+        class="btn btn-red"
+        href="${esc(url)}"
+        download
+        target="_blank"
+        rel="noopener noreferrer"
+        style="display:inline-flex;margin-top:12px;text-decoration:none;"
+      >
+        ⬇️ Download
+      </a>
+    `;
+  } else if (embed) {
+    videoFrame.innerHTML = `
+      <iframe
         src="${embed}"
         title="${esc(t.title)} ${esc(language)}"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin"
-        allowfullscreen></iframe>`
-    : `<p>No video link added for ${esc(language || t.title)} yet.</p>`;
+        allowfullscreen
+      ></iframe>
+
+      <p style="margin-top:12px;">
+        Download is available only for authorized direct video files.
+      </p>
+    `;
+  } else {
+    videoFrame.innerHTML = `
+      <p>No video link added for ${esc(language || t.title)} yet.</p>
+    `;
+  }
 
   if ($("detailsModal")?.open) {
     $("detailsModal").close();
