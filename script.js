@@ -84,6 +84,9 @@ function init(){$("yearNow").textContent=new Date().getFullYear();renderRows();r
       message.textContent = "Login successful!";
 $("loginBtn").style.display = "none";
 $("registerBtn").style.display = "none";
+     setTimeout(() => {
+  $("authModal").close();
+}, 1000);
     } else {
       const { data, error } = await client.auth.signUp({
         email,
