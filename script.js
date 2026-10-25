@@ -718,12 +718,12 @@ async function updateAccountUI() {
   const registerButton = $("registerBtn");
 
   if (loginButton) {
-    loginButton.style.display = user ? "none" : "";
-  }
+  loginButton.hidden = !!user;
+}
 
-  if (registerButton) {
-    registerButton.style.display = user ? "none" : "";
-  }
+if (registerButton) {
+  registerButton.hidden = !!user;
+}
 
   let area = $("accountArea");
 
