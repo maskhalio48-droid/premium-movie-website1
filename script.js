@@ -1,1107 +1,1154 @@
-/*
- Tamilflix website
- Login, Register, Account, Logout, Movies, Search,
- My List, Video Player and Supabase session support.
-*/
+/* ==========================================
+   TAMILFLIX - MAIN SCRIPT
+   Website Developed by Jayantha Dilan
+========================================== */
 
-const DEMO_TITLES = [
-  {
-    id: "leo",
-    title: "Leo",
-    year: "2023",
-    genre: "Action • Thriller",
-    rating: "UA",
-    type: "movie",
-    description: "Action thriller.",
-    poster: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&auto=format&fit=crop",
-    backdrop: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1800&auto=format&fit=crop",
-    videoUrl: "",
-    languageLinks: []
-  },
-  {
-    id: "jailer",
-    title: "Jailer",
-    year: "2023",
-    genre: "Action • Crime",
-    rating: "UA",
-    type: "movie",
-    description: "Action movie.",
-    poster: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: []
-  },
-  {
-    id: "vikram",
-    title: "Vikram",
-    year: "2022",
-    genre: "Action • Thriller",
-    rating: "UA",
-    type: "movie",
-    description: "Action thriller.",
-    poster: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: []
-  },
-  {
-    id: "master",
-    title: "Master",
-    year: "2021",
-    genre: "Action • Drama",
-    rating: "UA",
-    type: "movie",
-    description: "Action drama.",
-    poster: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: []
-  },
-  {
-    id: "movie-multilang-demo",
-    title: "Multi-language Movie Demo",
-    year: "2025",
-    genre: "Adventure • Action",
-    rating: "UA",
-    type: "movie",
-    description: "Example of multiple audio-language versions.",
-    poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: [
-      { language: "Tamil", videoUrl: "" },
-      { language: "Sinhala", videoUrl: "" },
-      { language: "English", videoUrl: "" },
-      { language: "Hindi", videoUrl: "" },
-      { language: "Telugu", videoUrl: "" }
-    ]
-  },
-  {
-    id: "movie-no-language",
-    title: "Single Video Movie Demo",
-    year: "2024",
-    genre: "Drama",
-    rating: "U",
-    type: "movie",
-    description: "Single-video demo.",
-    poster: "https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: []
-  },
-  {
-    id: "marvel-demo-1",
-    title: "Marvel Title Demo",
-    year: "2025",
-    genre: "Superhero • Action",
-    rating: "13+",
-    type: "marvel",
-    description: "Superhero demo.",
-    poster: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: [
-      { language: "Tamil", videoUrl: "" },
-      { language: "English", videoUrl: "" },
-      { language: "Hindi", videoUrl: "" },
-      { language: "Telugu", videoUrl: "" },
-      { language: "Sinhala", videoUrl: "" }
-    ]
-  },
-  {
-    id: "marvel-demo-2",
-    title: "Superhero Collection",
-    year: "2024",
-    genre: "Superhero • Sci-Fi",
-    rating: "13+",
-    type: "marvel",
-    description: "Superhero demo.",
-    poster: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: []
-  },
-  {
-    id: "anime-demo-1",
-    title: "Anime Adventure",
-    year: "2025",
-    genre: "Anime • Adventure",
-    rating: "13+",
-    type: "anime",
-    description: "Anime adventure demo.",
-    poster: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: [
-      { language: "Tamil Dub", videoUrl: "" },
-      { language: "Japanese", videoUrl: "" },
-      { language: "English Dub", videoUrl: "" },
-      { language: "Hindi Dub", videoUrl: "" },
-      { language: "Sinhala Dub", videoUrl: "" }
-    ]
-  },
-  {
-    id: "anime-demo-2",
-    title: "Anime Mystery",
-    year: "2024",
-    genre: "Anime • Mystery",
-    rating: "13+",
-    type: "anime",
-    description: "Anime mystery demo.",
-    poster: "https://images.unsplash.com/photo-1601850494422-3cf14624b0b3?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: []
-  },
-  {
-    id: "series-demo",
-    title: "Series Collection",
-    year: "2025",
-    genre: "Drama • Series",
-    rating: "13+",
-    type: "series",
-    description: "Series demo.",
-    poster: "https://images.unsplash.com/photo-1514306191717-452ec28c7814?w=600&auto=format&fit=crop",
-    backdrop: "",
-    videoUrl: "",
-    languageLinks: []
-  }
-];
+"use strict";
 
-const $ = id => document.getElementById(id);
-
-let titles = loadTitles();
-let slideIndex = 0;
-let slideTimer = null;
-let activeSection = "home";
-let query = "";
-let selectedTitle = null;
-let selectedVideoUrl = "";
-let authListenerRegistered = false;
-
-function loadTitles() {
-  try {
-    const stored = JSON.parse(
-      localStorage.getItem("tamilflix_titles") || "null"
-    );
-
-    return Array.isArray(stored) && stored.length
-      ? stored
-      : DEMO_TITLES;
-  } catch {
-    return DEMO_TITLES;
-  }
-}
-
-function saveTitles() {
-  localStorage.setItem(
-    "tamilflix_titles",
-    JSON.stringify(titles)
-  );
-}
-
-function getMyList() {
-  try {
-    return JSON.parse(
-      localStorage.getItem("tamilflix_mylist") || "[]"
-    );
-  } catch {
-    return [];
-  }
-}
-
-function setMyList(list) {
-  localStorage.setItem(
-    "tamilflix_mylist",
-    JSON.stringify(list)
-  );
-}
-
-function esc(value = "") {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
-}
+/* ---------- SUPABASE ---------- */
 
 function getSupabaseClient() {
-  if (window.tamilflixSupabase) {
-    return window.tamilflixSupabase;
-  }
+    if (window.tamilflixSupabase) {
+        return window.tamilflixSupabase;
+    }
 
-  if (
-    !window.supabase ||
-    !window.SUPABASE_URL ||
-    !window.SUPABASE_PUBLISHABLE_KEY
-  ) {
-    return null;
-  }
+    if (
+        !window.supabase ||
+        !window.SUPABASE_URL ||
+        !window.SUPABASE_PUBLISHABLE_KEY
+    ) {
+        console.error("Supabase configuration is missing.");
+        return null;
+    }
 
-  window.tamilflixSupabase =
-    window.supabase.createClient(
-      window.SUPABASE_URL,
-      window.SUPABASE_PUBLISHABLE_KEY
+    window.tamilflixSupabase = window.supabase.createClient(
+        window.SUPABASE_URL,
+        window.SUPABASE_PUBLISHABLE_KEY
     );
 
-  return window.tamilflixSupabase;
+    return window.tamilflixSupabase;
 }
 
-/* ---------------- MOVIE CARDS ---------------- */
+/* ---------- DEMO MOVIES ---------- */
 
-function card(t) {
-  const genre = String(t.genre || "")
-    .split("•")[0]
-    .trim();
+const DEMO_TITLES = [
+    {
+        id: "demo-1",
+        title: "Leo",
+        year: 2023,
+        genre: "Action",
+        rating: "U/A",
+        type: "movie",
+        description: "A sample movie listing for the Tamilflix catalogue.",
+        poster: "",
+        backdrop: "",
+        videoUrl: "",
+        languageLinks: []
+    },
+    {
+        id: "demo-2",
+        title: "Jailer",
+        year: 2023,
+        genre: "Action",
+        rating: "U/A",
+        type: "movie",
+        description: "A sample movie listing for the Tamilflix catalogue.",
+        poster: "",
+        backdrop: "",
+        videoUrl: "",
+        languageLinks: []
+    },
+    {
+        id: "demo-3",
+        title: "Vikram",
+        year: 2022,
+        genre: "Action",
+        rating: "U/A",
+        type: "movie",
+        description: "A sample movie listing for the Tamilflix catalogue.",
+        poster: "",
+        backdrop: "",
+        videoUrl: "",
+        languageLinks: []
+    },
+    {
+        id: "demo-4",
+        title: "Master",
+        year: 2021,
+        genre: "Action",
+        rating: "U/A",
+        type: "movie",
+        description: "A sample movie listing for the Tamilflix catalogue.",
+        poster: "",
+        backdrop: "",
+        videoUrl: "",
+        languageLinks: []
+    },
+    {
+        id: "demo-5",
+        title: "Marvel Collection",
+        year: 2025,
+        genre: "Superhero",
+        rating: "U/A",
+        type: "marvel",
+        description: "Explore superhero movie listings.",
+        poster: "",
+        backdrop: "",
+        videoUrl: "",
+        languageLinks: []
+    },
+    {
+        id: "demo-6",
+        title: "Anime Collection",
+        year: 2025,
+        genre: "Anime",
+        rating: "U",
+        type: "anime",
+        description: "Explore anime listings.",
+        poster: "",
+        backdrop: "",
+        videoUrl: "",
+        languageLinks: []
+    },
+    {
+        id: "demo-7",
+        title: "Series Collection",
+        year: 2025,
+        genre: "Drama",
+        rating: "U/A",
+        type: "series",
+        description: "Explore series listings.",
+        poster: "",
+        backdrop: "",
+        videoUrl: "",
+        languageLinks: []
+    }
+];
 
-  return `
-    <article class="poster-card"
-      data-id="${esc(t.id)}"
-      tabindex="0"
-      role="button">
+/* ---------- APPLICATION STATE ---------- */
 
-      <div class="poster-image-wrap">
-        <img
-          class="poster-image"
-          src="${esc(t.poster || "")}"
-          alt="${esc(t.title)} poster"
-          loading="lazy"
-          onerror="this.onerror=null;this.src='https://placehold.co/400x600/171a22/ffffff?text=Tamilflix'">
+let allTitles = [...DEMO_TITLES];
+let databaseTitles = [];
+let currentSection = "home";
+let currentSearch = "";
+let currentHeroIndex = 0;
+let heroTimer = null;
+let currentPlayerTitle = null;
 
-        <span class="poster-play">▶</span>
-      </div>
+const MY_LIST_KEY = "tamilflix_my_list";
 
-      <h3 class="poster-title">${esc(t.title)}</h3>
-
-      <p class="poster-meta">
-        ${esc(t.year || "")} · ${esc(genre)}
-        <span class="rating">${esc(t.rating || "U")}</span>
-      </p>
-    </article>
-  `;
+function getMyList() {
+    try {
+        const list = JSON.parse(localStorage.getItem(MY_LIST_KEY) || "[]");
+        return Array.isArray(list) ? list.map(String) : [];
+    } catch {
+        return [];
+    }
 }
 
-function filteredTitles() {
-  return titles.filter(t => {
-    const text = [
-      t.title,
-      t.genre,
-      t.year,
-      t.type
+function saveMyList(list) {
+    localStorage.setItem(MY_LIST_KEY, JSON.stringify(list));
+}
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+}
+
+function safeURL(value) {
+    if (!value) return "";
+
+    try {
+        const url = new URL(String(value), window.location.href);
+
+        if (url.protocol === "https:" || url.protocol === "http:") {
+            return url.href;
+        }
+    } catch (error) {
+        console.warn("Invalid URL:", value);
+    }
+
+    return "";
+}
+
+/* ---------- DATABASE MOVIE MAPPING ---------- */
+
+function mapDatabaseMovie(row) {
+    const category = String(row.category || "movie").toLowerCase();
+
+    let type = category;
+
+    if (category.includes("series")) {
+        type = "series";
+    } else if (category.includes("marvel")) {
+        type = "marvel";
+    } else if (category.includes("anime")) {
+        type = "anime";
+    } else {
+        type = "movie";
+    }
+
+    let languageLinks = row.languages;
+
+    if (typeof languageLinks === "string") {
+        try {
+            languageLinks = JSON.parse(languageLinks);
+        } catch {
+            languageLinks = [];
+        }
+    }
+
+    if (!Array.isArray(languageLinks)) {
+        languageLinks = [];
+    }
+
+    return {
+        id: String(row.id),
+        title: row.title || "Untitled",
+        year: row.year || "",
+        genre: row.genre || "",
+        rating: row.rating || "U",
+        type,
+        category,
+        description: row.description || "",
+        poster: safeURL(row.poster_url || ""),
+        backdrop: safeURL(row.backdrop_url || row.poster_url || ""),
+        videoUrl: safeURL(row.video_url || ""),
+        languageLinks: languageLinks.map(item => {
+            if (!item || typeof item !== "object") return null;
+
+            return {
+                language: String(item.language || item.name || "Default"),
+                quality: String(item.quality || ""),
+                url: safeURL(
+                    item.videoUrl ||
+                    item.video_url ||
+                    item.url ||
+                    ""
+                )
+            };
+        }).filter(Boolean)
+    };
+}
+
+function setDatabaseMovies(rows) {
+    databaseTitles = Array.isArray(rows)
+        ? rows.map(mapDatabaseMovie)
+        : [];
+
+    rebuildTitles();
+}
+
+function rebuildTitles() {
+    const databaseIds = new Set(
+        databaseTitles.map(movie => String(movie.id))
+    );
+
+    allTitles = [
+        ...databaseTitles,
+        ...DEMO_TITLES.filter(movie => !databaseIds.has(String(movie.id)))
+    ];
+
+    renderRows();
+    renderHero();
+}
+
+window.tamilflixSetDatabaseMovies = setDatabaseMovies;
+window.tamilflixMapMovie = mapDatabaseMovie;
+
+/* ---------- MOVIE CARD ---------- */
+
+function createMovieCard(movie) {
+    const card = document.createElement("article");
+    card.className = "movie-card";
+
+    const poster = safeURL(movie.poster);
+
+    const posterContent = poster
+        ? `<img src="${escapeHTML(poster)}"
+                alt="${escapeHTML(movie.title)}"
+                loading="lazy">`
+        : `<div class="poster-placeholder">
+                <span>▶</span>
+                <strong>${escapeHTML(movie.title)}</strong>
+           </div>`;
+
+    card.innerHTML = `
+        <button class="poster-card"
+                type="button"
+                aria-label="View ${escapeHTML(movie.title)}">
+            ${posterContent}
+            <span class="poster-play">▶</span>
+        </button>
+
+        <div class="card-info">
+            <h3>${escapeHTML(movie.title)}</h3>
+
+            <p>
+                ${escapeHTML(movie.year || "")}
+                ${movie.genre ? " • " + escapeHTML(movie.genre) : ""}
+            </p>
+
+            <span class="card-rating">
+                ${escapeHTML(movie.rating || "U")}
+            </span>
+        </div>
+    `;
+
+    card.querySelector(".poster-card").addEventListener("click", () => {
+        openDetails(movie);
+    });
+
+    return card;
+}
+
+function renderMovieContainer(containerId, movies) {
+    const container = document.getElementById(containerId);
+
+    if (!container) return;
+
+    container.replaceChildren();
+
+    movies.forEach(movie => {
+        container.appendChild(createMovieCard(movie));
+    });
+}
+
+/* ---------- FILTERING ---------- */
+
+function isMovie(movie) {
+    return movie.type === "movie";
+}
+
+function isMarvel(movie) {
+    return movie.type === "marvel" ||
+        String(movie.genre).toLowerCase().includes("marvel");
+}
+
+function isAnime(movie) {
+    return movie.type === "anime" ||
+        String(movie.genre).toLowerCase().includes("anime");
+}
+
+function isSeries(movie) {
+    return movie.type === "series";
+}
+
+function matchesSearch(movie) {
+    if (!currentSearch) return true;
+
+    const searchText = [
+        movie.title,
+        movie.genre,
+        movie.category,
+        movie.description,
+        movie.year
     ].join(" ").toLowerCase();
 
-    return !query || text.includes(query.toLowerCase());
-  });
+    return searchText.includes(currentSearch.toLowerCase());
 }
-
-/* ---------------- RENDER MOVIES ---------------- */
 
 function renderRows() {
-  const list = filteredTitles();
-  const home = activeSection === "home" && !query;
+    const movies = allTitles.filter(matchesSearch);
 
-  const groups = [
-    ["trendingSection", "trendingMovies", t => t.type === "movie"],
-    ["marvelSection", "marvelTitles", t => t.type === "marvel"],
-    ["animeSection", "animeTitles", t => t.type === "anime"],
-    ["seriesSection", "popularSeries", t => t.type === "series"],
-    [
-      "noLangSection",
-      "noLangMovies",
-      t => t.type === "movie" &&
-        !(t.languageLinks || []).length
-    ]
-  ];
+    const trending = movies.filter(isMovie);
+    const marvel = movies.filter(isMarvel);
+    const anime = movies.filter(isAnime);
+    const series = movies.filter(isSeries);
 
-  groups.forEach(([section, container, filter]) => {
-    if ($(section)) {
-      $(section).classList.toggle("hidden", !home);
-    }
-
-    if ($(container)) {
-      $(container).innerHTML =
-        list.filter(filter).slice(0, 14).map(card).join("");
-    }
-  });
-
-  const showAll =
-    !!query ||
-    ["movies", "marvel", "anime", "series"].includes(activeSection);
-
-  if ($("allSection")) {
-    $("allSection").classList.toggle("hidden", !showAll);
-  }
-
-  if ($("myListSection")) {
-    $("myListSection").classList.toggle(
-      "hidden",
-      activeSection !== "mylist"
+    const noLanguage = movies.filter(movie =>
+        isMovie(movie) &&
+        (!Array.isArray(movie.languageLinks) ||
+            movie.languageLinks.length === 0)
     );
-  }
 
-  if (showAll) {
-    const types = {
-      movies: ["movie"],
-      marvel: ["marvel"],
-      anime: ["anime"],
-      series: ["series"]
+    renderMovieContainer("trendingMovies", trending);
+    renderMovieContainer("marvelTitles", marvel);
+    renderMovieContainer("animeTitles", anime);
+    renderMovieContainer("popularSeries", series);
+    renderMovieContainer("noLangMovies", noLanguage);
+    renderMovieContainer("allItems", movies);
+
+    const myListIds = getMyList();
+
+    renderMovieContainer(
+        "myListItems",
+        allTitles.filter(movie =>
+            myListIds.includes(String(movie.id)) &&
+            matchesSearch(movie)
+        )
+    );
+
+    const resultCount = document.getElementById("resultCount");
+
+    if (resultCount) {
+        resultCount.textContent = `${movies.length} titles`;
+    }
+
+    const allHeading = document.getElementById("allHeading");
+
+    if (allHeading) {
+        allHeading.textContent = currentSearch
+            ? `Search results for "${currentSearch}"`
+            : "All Movies & Series";
+    }
+
+    updateSectionVisibility();
+}
+
+function updateSectionVisibility() {
+    const sections = {
+        trendingSection: currentSection === "home",
+        marvelSection: currentSection === "home",
+        animeSection: currentSection === "home",
+        seriesSection: currentSection === "home",
+        noLangSection: currentSection === "home",
+        allSection: currentSection !== "home" &&
+            currentSection !== "mylist",
+        myListSection: currentSection === "mylist"
     };
 
-    const arr = list.filter(t =>
-      query || (types[activeSection] || []).includes(t.type)
-    );
+    Object.entries(sections).forEach(([id, visible]) => {
+        const element = document.getElementById(id);
 
-    if ($("allHeading")) {
-      $("allHeading").textContent = query
-        ? `Search: ${query}`
-        : ({
-            movies: "Movies",
-            marvel: "Marvel",
-            anime: "Anime",
-            series: "Series"
-          }[activeSection] || "Search Results");
+        if (element) {
+            element.classList.toggle("hidden", !visible);
+        }
+    });
+
+    const emptyState = document.getElementById("emptyState");
+
+    if (emptyState) {
+        const list = currentSection === "mylist"
+            ? getMyList()
+            : allTitles.filter(matchesSearch);
+
+        emptyState.classList.toggle("hidden", list.length > 0);
     }
-
-    if ($("resultCount")) {
-      $("resultCount").textContent = `${arr.length} titles`;
-    }
-
-    if ($("allItems")) {
-      $("allItems").innerHTML = arr.map(card).join("");
-    }
-  }
-
-  if (activeSection === "mylist" && $("myListItems")) {
-    const myList = getMyList();
-
-    const arr = titles.filter(t =>
-      myList.some(id => String(id) === String(t.id))
-    );
-
-    $("myListItems").innerHTML = arr.map(card).join("");
-  }
-
-  const count = showAll
-    ? list.filter(t =>
-        query ||
-        ({
-          movies: t.type === "movie",
-          marvel: t.type === "marvel",
-          anime: t.type === "anime",
-          series: t.type === "series"
-        }[activeSection] || false)
-      ).length
-    : activeSection === "mylist"
-      ? titles.filter(t =>
-          getMyList().some(id => String(id) === String(t.id))
-        ).length
-      : list.length;
-
-  if ($("emptyState")) {
-    $("emptyState").classList.toggle("hidden", count > 0);
-  }
-
-  bindCards();
 }
 
-/* ---------------- HERO SLIDER ---------------- */
+/* ---------- HERO SLIDER ---------- */
 
 function renderHero() {
-  if (!$("hero")) return;
+    const hero = document.getElementById("hero");
 
-  const featured = titles
-    .filter(t => ["movie", "marvel", "anime"].includes(t.type))
-    .slice(0, 5);
+    if (!hero) return;
 
-  if (!featured.length) return;
+    const featured = allTitles.filter(movie =>
+        movie.backdrop || movie.poster
+    );
 
-  slideIndex = ((slideIndex % featured.length) + featured.length)
-    % featured.length;
+    if (!featured.length) {
+        hero.style.backgroundImage = "";
+        hero.style.background = "linear-gradient(120deg,#181818,#080808)";
 
-  const t = featured[slideIndex];
+        const title = document.getElementById("heroTitle");
+        const description = document.getElementById("heroDescription");
+        const meta = document.getElementById("heroMeta");
 
-  $("hero").style.backgroundImage =
-    `url("${t.backdrop || t.poster || ""}")`;
+        if (title) title.textContent = "Welcome to Tamilflix";
+        if (description) {
+            description.textContent =
+                "Movies • Series • Entertainment";
+        }
+        if (meta) meta.textContent = "FEATURED";
 
-  if ($("heroTitle")) {
-    $("heroTitle").textContent = t.title || "";
-  }
+        return;
+    }
 
-  if ($("heroMeta")) {
-    $("heroMeta").textContent =
-      `${t.year || ""} • ${t.genre || ""} • ${t.rating || "U"}`;
-  }
+    if (currentHeroIndex >= featured.length) {
+        currentHeroIndex = 0;
+    }
 
-  if ($("heroDescription")) {
-    $("heroDescription").textContent =
-      t.description || "Discover this title on Tamilflix.";
-  }
+    const movie = featured[currentHeroIndex];
+    const image = safeURL(movie.backdrop || movie.poster);
 
-  if ($("heroWatch")) {
-    $("heroWatch").onclick = () => openDetails(t);
-  }
+    hero.style.backgroundImage = image
+        ? `linear-gradient(90deg,rgba(0,0,0,.95),rgba(0,0,0,.2)),url("${image}")`
+        : "linear-gradient(120deg,#181818,#080808)";
 
-  if ($("heroList")) {
-    $("heroList").onclick = () => toggleList(t);
-  }
+    const title = document.getElementById("heroTitle");
+    const description = document.getElementById("heroDescription");
+    const meta = document.getElementById("heroMeta");
 
-  if ($("sliderDots")) {
-    $("sliderDots").innerHTML = featured.map((x, i) => `
-      <button
-        class="slider-dot ${i === slideIndex ? "active" : ""}"
-        data-slide="${i}"
-        aria-label="Show ${esc(x.title)}">
-      </button>
-    `).join("");
+    if (title) title.textContent = movie.title;
+    if (description) {
+        description.textContent =
+            movie.description || "Discover movies and series on Tamilflix.";
+    }
 
-    $("sliderDots").querySelectorAll("button").forEach(button => {
-      button.onclick = () => {
-        slideIndex = Number(button.dataset.slide);
-        renderHero();
-        restartSlider();
-      };
-    });
-  }
+    if (meta) {
+        meta.textContent = [
+            movie.year,
+            movie.genre,
+            movie.rating
+        ].filter(Boolean).join(" • ");
+    }
+
+    const watch = document.getElementById("heroWatch");
+    const add = document.getElementById("heroList");
+
+    if (watch) {
+        watch.onclick = () => openDetails(movie);
+    }
+
+    if (add) {
+        add.onclick = () => toggleMyList(movie);
+    }
+
+    renderSliderDots(featured.length);
 }
 
-function nextSlide(amount = 1) {
-  const count = titles
-    .filter(t => ["movie", "marvel", "anime"].includes(t.type))
-    .slice(0, 5).length;
+function renderSliderDots(count) {
+    const dots = document.getElementById("sliderDots");
 
-  if (count) {
-    slideIndex = (slideIndex + amount + count) % count;
+    if (!dots) return;
+
+    dots.replaceChildren();
+
+    for (let i = 0; i < count; i++) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = i === currentHeroIndex ? "active" : "";
+        button.setAttribute("aria-label", `Slide ${i + 1}`);
+
+        button.addEventListener("click", () => {
+            currentHeroIndex = i;
+            renderHero();
+            restartSlider();
+        });
+
+        dots.appendChild(button);
+    }
+}
+
+function moveHero(direction) {
+    const featured = allTitles.filter(movie =>
+        movie.backdrop || movie.poster
+    );
+
+    if (!featured.length) return;
+
+    currentHeroIndex =
+        (currentHeroIndex + direction + featured.length) %
+        featured.length;
+
     renderHero();
-  }
+    restartSlider();
 }
 
 function restartSlider() {
-  clearInterval(slideTimer);
-  slideTimer = setInterval(() => nextSlide(1), 5000);
+    if (heroTimer) {
+        clearInterval(heroTimer);
+    }
+
+    heroTimer = setInterval(() => {
+        moveHero(1);
+    }, 6000);
 }
 
-/* ---------------- DETAILS AND PLAYER ---------------- */
+window.renderRows = renderRows;
+window.renderHero = renderHero;
+window.restartSlider = restartSlider;
 
-function openDetails(t) {
-  selectedTitle = t;
+/* ---------- DETAILS MODAL ---------- */
 
-  if (!$("detailsModal")) return;
+function openDetails(movie) {
+    const modal = document.getElementById("detailsModal");
 
-  $("detailPoster").src = t.poster || "";
+    if (!modal) return;
 
-  $("detailPoster").onerror = () => {
-    $("detailPoster").src =
-      "https://placehold.co/400x600/171a22/ffffff?text=Tamilflix";
-  };
+    const poster = document.getElementById("detailPoster");
+    const category = document.getElementById("detailCategory");
+    const title = document.getElementById("detailTitle");
+    const meta = document.getElementById("detailMeta");
+    const description = document.getElementById("detailDescription");
 
-  $("detailTitle").textContent = t.title || "";
+    if (poster) {
+        poster.src = safeURL(movie.poster) || "";
+        poster.alt = movie.title;
+    }
 
-  $("detailMeta").textContent =
-    `${t.year || ""} • ${t.genre || ""} • ${t.rating || "U"}`;
+    if (category) {
+        category.textContent = movie.type.toUpperCase();
+    }
 
-  $("detailDescription").textContent = t.description || "";
+    if (title) title.textContent = movie.title;
 
-  $("detailCategory").textContent =
-    String(t.type || "movie").toUpperCase();
+    if (meta) {
+        meta.textContent = [
+            movie.year,
+            movie.genre,
+            movie.rating
+        ].filter(Boolean).join(" • ");
+    }
 
-  const langs = Array.isArray(t.languageLinks)
-    ? t.languageLinks
-    : [];
+    if (description) {
+        description.textContent =
+            movie.description || "No description available.";
+    }
 
-  if (langs.length) {
-    $("languageArea").innerHTML = `
-      <div class="language-title">Choose audio language / version</div>
-      <div class="language-links">
-        ${langs.map((lang, i) => `
-          <button
-            class="language-btn ${i === 0 ? "selected" : ""}"
-            data-lang="${i}">
-            ${esc(lang.language || "Version")}
-          </button>
-        `).join("")}
-      </div>
-    `;
+    const languageArea = document.getElementById("languageArea");
 
-    selectedVideoUrl = langs[0].videoUrl || "";
+    if (languageArea) {
+        languageArea.replaceChildren();
 
-    $("languageArea")
-      .querySelectorAll("[data-lang]")
-      .forEach(button => {
-        button.onclick = () => {
-          $("languageArea")
-            .querySelectorAll(".language-btn")
-            .forEach(item => item.classList.remove("selected"));
+        movie.languageLinks.forEach(item => {
+            if (!item.url) return;
 
-          button.classList.add("selected");
+            const button = document.createElement("button");
 
-          const lang = langs[Number(button.dataset.lang)];
+            button.type = "button";
+            button.className = "language-button";
 
-          selectedVideoUrl = lang.videoUrl || "";
+            button.textContent = [
+                item.language,
+                item.quality
+            ].filter(Boolean).join(" • ");
 
-          $("detailWatch").textContent =
-            `▶ Watch ${lang.language || "Version"}`;
+            button.addEventListener("click", () => {
+                openPlayer(movie, item.url, item.language);
+            });
+
+            languageArea.appendChild(button);
+        });
+    }
+
+    const watch = document.getElementById("detailWatch");
+
+    if (watch) {
+        watch.onclick = () => {
+            const firstLink = movie.languageLinks.find(item => item.url);
+
+            const url = firstLink
+                ? firstLink.url
+                : movie.videoUrl;
+
+            if (url) {
+                openPlayer(
+                    movie,
+                    url,
+                    firstLink ? firstLink.language : "Default"
+                );
+            } else {
+                alert(
+                    "இந்தத் திரைப்படத்திற்கு இன்னும் video URL சேர்க்கப்படவில்லை."
+                );
+            }
         };
-      });
-  } else {
-    $("languageArea").innerHTML =
-      `<p class="no-language-note">Single video • No language selection</p>`;
-
-    selectedVideoUrl = t.videoUrl || "";
-  }
-
-  $("detailWatch").textContent = langs.length
-    ? `▶ Watch ${langs[0].language || "Version"}`
-    : "▶ Watch Now";
-
-  $("detailWatch").onclick = () => {
-    const language = langs.length
-      ? ($("languageArea").querySelector(".selected")?.textContent || "")
-      : "";
-
-    openPlayer(t, selectedVideoUrl, language);
-  };
-
-  $("detailList").onclick = () => toggleList(t);
-
-  $("detailsModal").showModal();
-}
-
-function getEmbed(raw) {
-  try {
-    const url = new URL(raw);
-    let id = "";
-
-    if (url.hostname.includes("youtu.be")) {
-      id = url.pathname.slice(1);
-    } else if (url.hostname.includes("youtube.com")) {
-      id =
-        url.searchParams.get("v") ||
-        url.pathname.match(/\/embed\/([^/?]+)/)?.[1] ||
-        url.pathname.match(/\/shorts\/([^/?]+)/)?.[1] ||
-        "";
     }
 
-    return id
-      ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`
-      : "";
-  } catch {
-    return "";
-  }
+    const listButton = document.getElementById("detailList");
+
+    if (listButton) {
+        listButton.onclick = () => toggleMyList(movie);
+    }
+
+    if (typeof modal.showModal === "function") {
+        modal.showModal();
+    }
 }
 
-/* ---------------- VIDEO PLAYER + DOWNLOAD ---------------- */
+/* ---------- VIDEO PLAYER ---------- */
 
-function openPlayer(t, url = "", language = "") {
-  selectedTitle = t;
-
-  const modal = $("playerModal");
-  const frame = $("videoFrame");
-
-  if (!modal || !frame) return;
-
-  $("playerTitle").textContent = t.title || "Movie";
-
-  $("playerLanguage").textContent = language
-    ? `Language: ${language}`
-    : "";
-
-  // Get quality links saved in the existing languages field.
-  const links = Array.isArray(t.languageLinks)
-    ? t.languageLinks.filter(item =>
-        item &&
-        typeof item.url === "string" &&
-        item.url.trim()
-      )
-    : [];
-
-  const directVideoPattern = /\.(mp4|webm|ogg)(?:[?#].*)?$/i;
-
-  function isDirectVideo(link) {
-    return directVideoPattern.test(link) ||
-      /\/storage\/v1\/object\/public\//i.test(link);
-  }
-
-  function safeUrl(value) {
+function getYouTubeEmbed(url) {
     try {
-      const parsed = new URL(value, window.location.href);
+        const parsed = new URL(url);
+        let videoId = "";
 
-      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-        return "";
-      }
+        if (
+            parsed.hostname.includes("youtube.com") ||
+            parsed.hostname.includes("youtube-nocookie.com")
+        ) {
+            if (parsed.pathname === "/watch") {
+                videoId = parsed.searchParams.get("v") || "";
+            } else if (parsed.pathname.startsWith("/embed/")) {
+                videoId = parsed.pathname.split("/embed/")[1].split("/")[0];
+            } else if (parsed.pathname.startsWith("/shorts/")) {
+                videoId = parsed.pathname.split("/shorts/")[1].split("/")[0];
+            }
+        } else if (parsed.hostname === "youtu.be") {
+            videoId = parsed.pathname.slice(1).split("/")[0];
+        }
 
-      return parsed.href;
+        if (/^[a-zA-Z0-9_-]{6,20}$/.test(videoId)) {
+            return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`;
+        }
+    } catch (error) {
+        console.warn("Could not parse video URL.");
+    }
+
+    return "";
+}
+
+function isDirectVideoURL(url) {
+    try {
+        const parsed = new URL(url);
+
+        if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+            return false;
+        }
+
+        return /\.(mp4|webm|ogg)(?:$|[?#])/i.test(parsed.href);
     } catch {
-      return "";
+        return false;
     }
-  }
-
-  function renderVideo(videoUrl) {
-    const safe = safeUrl(videoUrl);
-
-    if (!safe) {
-      frame.innerHTML = "<p>Invalid video URL.</p>";
-      return;
-    }
-
-    const embed = getEmbed(safe);
-
-    if (embed) {
-      frame.innerHTML = `
-        <iframe
-          src="${esc(embed)}"
-          title="${esc(t.title || "Movie")}"
-          allow="accelerometer; autoplay; clipboard-write;
-                 encrypted-media; gyroscope; picture-in-picture;
-                 web-share"
-          allowfullscreen
-          referrerpolicy="strict-origin-when-cross-origin"
-          style="width:100%;aspect-ratio:16/9;border:0"
-        ></iframe>
-
-        <p style="margin-top:12px">
-          const loadingMessage = document.createElement("div");
-loadingMessage.id = "videoLoadingMessage";
-loadingMessage.textContent = "🎬 Video loading, please wait...";
-loadingMessage.style.cssText = `
-    color: white;
-    text-align: center;
-    padding: 30px 10px;
-    font-size: 16px;
-`;
-
-videoFrame.innerHTML = "";
-videoFrame.appendChild(loadingMessage); </p>
-      `;
-
-      return;
-    }
-
-    if (!isDirectVideo(safe)) {
-      frame.innerHTML = `
-        <p>This link is not a recognized direct video file.</p>
-        <a href="${esc(safe)}"
-           target="_blank"
-           rel="noopener noreferrer">
-          Open video link
-        </a>
-      `;
-      return;
-    }
-
-    frame.innerHTML = `
-      <video
-        id="tamilflixVideo"
-        controls
-        playsinline
-        preload="metadata"
-        style="width:100%;max-height:70vh;background:#000"
-      >
-        <source src="${esc(safe)}">
-        Your browser does not support video playback.
-      </video>
-
-      <a
-        href="${esc(safe)}"
-        download
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn btn-red"
-        style="display:inline-flex;margin-top:12px;text-decoration:none"
-      >⬇️ Download</a>
-    `;
-  }
-
-  // Create quality selector if multiple direct video files exist.
-  const qualityLinks = links.filter(item =>
-    isDirectVideo(safeUrl(item.url) || "")
-  );
-
-  if (qualityLinks.length > 0) {
-    const options = qualityLinks.map((item, index) => `
-      <option value="${index}">
-        ${esc(item.quality || item.language || `Quality ${index + 1}`)}
-      </option>
-    `).join("");
-
-    frame.innerHTML = `
-      <label for="tamilflixQuality">Video quality:</label>
-      <select id="tamilflixQuality" style="margin:8px;padding:8px">
-        ${options}
-      </select>
-      <div id="tamilflixVideoArea"></div>
-    `;
-
-    const select = $("tamilflixQuality");
-    const area = $("tamilflixVideoArea");
-
-    function showSelectedQuality() {
-      const item = qualityLinks[Number(select.value)];
-      if (!item) return;
-
-      // Render inside a temporary container.
-      const oldFrame = $("videoFrame");
-      const originalHTML = oldFrame.innerHTML;
-
-      oldFrame.innerHTML = "";
-      renderVideo(item.url);
-
-      const renderedHTML = oldFrame.innerHTML;
-      oldFrame.innerHTML = originalHTML;
-
-      area.innerHTML = renderedHTML;
-    }
-
-    select.addEventListener("change", showSelectedQuality);
-    showSelectedQuality();
-  } else {
-    renderVideo(url || t.videoUrl || "");
-  }
-
-  if ($("detailsModal")?.open) {
-    $("detailsModal").close();
-  }
-
-  if (!modal.open) {
-    modal.showModal();
-  }
 }
 
-/* ---------------- MY LIST ---------------- */
+function openPlayer(movie, rawURL, language = "Default") {
+    const modal = document.getElementById("playerModal");
+    const frame = document.getElementById("videoFrame");
+    const title = document.getElementById("playerTitle");
+    const playerLanguage = document.getElementById("playerLanguage");
+    const downloadArea = document.getElementById("downloadArea");
 
-function toggleList(t) {
-  const list = getMyList();
-  const id = String(t.id);
+    if (!modal || !frame) return;
 
-  const updated = list.some(item => String(item) === id)
-    ? list.filter(item => String(item) !== id)
-    : [...list, id];
+    const url = safeURL(rawURL);
 
-  setMyList(updated);
-  renderRows();
+    if (!url) {
+        alert("இந்த video URL செல்லுபடியாகவில்லை.");
+        return;
+    }
+
+    currentPlayerTitle = movie;
+
+    if (title) title.textContent = movie.title;
+
+    if (playerLanguage) {
+        playerLanguage.textContent = language || "Default";
+    }
+
+    frame.replaceChildren();
+
+    if (downloadArea) {
+        downloadArea.replaceChildren();
+        downloadArea.classList.add("hidden");
+    }
+
+    const embedURL = getYouTubeEmbed(url);
+
+    if (embedURL) {
+        const iframe = document.createElement("iframe");
+
+        iframe.src = embedURL;
+        iframe.title = movie.title;
+        iframe.allow =
+            "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = "strict-origin-when-cross-origin";
+
+        frame.appendChild(iframe);
+    } else if (isDirectVideoURL(url)) {
+        const video = document.createElement("video");
+
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        video.src = url;
+
+        frame.appendChild(video);
+
+        if (downloadArea) {
+            const downloadLink = document.createElement("a");
+
+            downloadLink.href = url;
+            downloadLink.textContent = "⬇ Download Video";
+            downloadLink.target = "_blank";
+            downloadLink.rel = "noopener noreferrer";
+            downloadLink.className = "btn btn-red";
+
+            downloadArea.appendChild(downloadLink);
+                        downloadArea.classList.remove("hidden");
+        }
+    } else {
+        const message = document.createElement("p");
+
+        message.textContent =
+            "இந்த video URL ஆதரிக்கப்படவில்லை. YouTube link அல்லது நேரடி MP4/WebM/OGG URL பயன்படுத்தவும்.";
+
+        frame.appendChild(message);
+    }
+
+    if (typeof modal.showModal === "function") {
+        modal.showModal();
+    }
 }
 
-function bindCards() {
-  document.querySelectorAll(".poster-card").forEach(element => {
-    const open = () => {
-      const movie = titles.find(
-        item => String(item.id) === String(element.dataset.id)
-      );
+function closePlayer() {
+    const frame = document.getElementById("videoFrame");
+    const downloadArea = document.getElementById("downloadArea");
 
-      if (movie) openDetails(movie);
-    };
+    if (frame) frame.replaceChildren();
 
-    element.onclick = open;
+    if (downloadArea) {
+        downloadArea.replaceChildren();
+        downloadArea.classList.add("hidden");
+    }
 
-    element.onkeydown = event => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        open();
-      }
-    };
-  });
+    currentPlayerTitle = null;
 }
 
-/* ---------------- NAVIGATION ---------------- */
+/* ---------- MY LIST ---------- */
+
+function toggleMyList(movie) {
+    const list = getMyList();
+    const id = String(movie.id);
+    const index = list.indexOf(id);
+
+    if (index >= 0) {
+        list.splice(index, 1);
+        alert("My List-லிருந்து நீக்கப்பட்டது.");
+    } else {
+        list.push(id);
+        alert("My List-ல் சேர்க்கப்பட்டது.");
+    }
+
+    saveMyList(list);
+    renderRows();
+}
+
+window.tamilflixToggleMyList = toggleMyList;
+
+/* ---------- NAVIGATION ---------- */
 
 function setSection(section) {
-  activeSection = section;
+    currentSection = section || "home";
 
-  if (section === "home") {
-    query = "";
-  }
+    document.querySelectorAll(".nav-link").forEach(link => {
+        link.classList.toggle(
+            "active",
+            link.dataset.section === currentSection
+        );
+    });
 
-  if ($("searchInput")) {
-    $("searchInput").value = query;
-  }
+    renderRows();
 
-  document.querySelectorAll(".nav-link").forEach(button => {
-    button.classList.toggle(
-      "active",
-      button.dataset.section === section
-    );
-  });
+    const nav = document.getElementById("mainNav");
 
-  renderRows();
+    if (nav) nav.classList.remove("open");
 
-  if (window.innerWidth < 800 && $("mainNav")) {
-    $("mainNav").classList.remove("open");
-  }
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
-/* ---------------- LOGIN / REGISTER ---------------- */
+window.tamilflixSetSection = setSection;
+
+/* ---------- LOGIN / REGISTER ---------- */
+
+let authMode = "login";
 
 function showAuth(mode) {
-  if (!$("authModal")) return;
+    authMode = mode === "register" ? "register" : "login";
 
-  $("authHeading").textContent =
-    mode === "login" ? "Login" : "Create Account";
+    const modal = document.getElementById("authModal");
+    const heading = document.getElementById("authHeading");
+    const submit = document.getElementById("authSubmit");
+    const message = document.getElementById("authMessage");
+    const form = document.getElementById("authForm");
 
-  $("authSubmit").textContent =
-    mode === "login" ? "Login" : "Register";
-
-  $("authMessage").textContent = "";
-  $("authForm").reset();
-  $("authModal").showModal();
-}
-
-/* Display signed-in account email and Logout button. */
-async function updateAccountUI() {
-  const client = getSupabaseClient();
-
-  let user = null;
-
-  if (client) {
-    const { data, error } = await client.auth.getSession();
-
-    if (!error) {
-      user = data.session?.user || null;
-    }
-  }
-
-  const loginButton = $("loginBtn");
-  const registerButton = $("registerBtn");
-
-  if (loginButton) {
-  loginButton.hidden = !!user;
-}
-
-if (registerButton) {
-  registerButton.hidden = !!user;
-}
-
-  let area = $("accountArea");
-
-  if (!area) {
-    area = document.createElement("div");
-    area.id = "accountArea";
-    area.className = "account-area";
-
-    const container = document.querySelector(".auth-buttons");
-
-    if (container) {
-      container.appendChild(area);
-    }
-  }
-
-  if (!area) return;
-
-  if (!user) {
-    area.innerHTML = "";
-    return;
-  }
-
-  area.innerHTML = `
-    <span class="account-email" title="${esc(user.email || "")}">
-      ${esc(user.email || "Signed in")}
-    </span>
-    <button type="button" id="logoutBtn" class="btn btn-outline">
-      Logout
-    </button>
-  `;
-
-  $("logoutBtn").onclick = async () => {
-    const button = $("logoutBtn");
-    button.disabled = true;
-
-    const { error } = await client.auth.signOut();
-
-    if (error) {
-      alert("Logout failed: " + error.message);
-      button.disabled = false;
-      return;
+    if (heading) {
+        heading.textContent =
+            authMode === "register" ? "Create Account" : "Login";
     }
 
-    await updateAccountUI();
-  };
+    if (submit) {
+        submit.textContent =
+            authMode === "register" ? "Register" : "Login";
+    }
+
+    if (message) message.textContent = "";
+
+    if (form) form.reset();
+
+    if (modal && typeof modal.showModal === "function") {
+        modal.showModal();
+    }
 }
+
+window.tamilflixShowAuth = showAuth;
 
 async function handleAuthSubmit(event) {
-  event.preventDefault();
+    event.preventDefault();
 
-  const email = $("authEmail").value.trim();
-  const password = $("authPassword").value;
-  const message = $("authMessage");
-  const button = $("authSubmit");
-  const client = getSupabaseClient();
+    const client = getSupabaseClient();
 
-  if (!client) {
-    message.textContent =
-      "Supabase configuration missing. Please check setup.";
-    return;
-  }
+    const email = document.getElementById("authEmail")?.value.trim();
+    const password = document.getElementById("authPassword")?.value;
+    const message = document.getElementById("authMessage");
+    const submit = document.getElementById("authSubmit");
 
-  button.disabled = true;
-  message.textContent = "Please wait...";
-
-  try {
-    if (
-      $("authHeading").textContent.trim().toLowerCase() === "login"
-    ) {
-      const { error } = await client.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) throw error;
-
-      message.textContent = "Login successful!";
-
-      await updateAccountUI();
-
-      setTimeout(() => {
-        if ($("authModal")?.open) {
-          $("authModal").close();
+    if (!client) {
+        if (message) {
+            message.textContent =
+                "Supabase configuration-ஐ சரிபார்க்கவும்.";
         }
-      }, 700);
-    } else {
-      const { data, error } = await client.auth.signUp({
-        email,
-        password
-      });
-
-      if (error) throw error;
-
-      if (data.session) {
-        message.textContent = "Account created successfully!";
-
-        await updateAccountUI();
-
-        setTimeout(() => {
-          if ($("authModal")?.open) {
-            $("authModal").close();
-          }
-        }, 700);
-      } else {
-        message.textContent =
-          "Account created. Please check your email to confirm it.";
-      }
+        return;
     }
-  } catch (error) {
-    message.textContent =
-      error.message || "Something went wrong.";
-  } finally {
-     button.disabled = false;
-  }
+
+    if (!email || !password) {
+        if (message) {
+            message.textContent = "Email மற்றும் password உள்ளிடவும்.";
+        }
+        return;
+    }
+
+    if (password.length < 6) {
+        if (message) {
+            message.textContent =
+                "Password குறைந்தது 6 characters இருக்க வேண்டும்.";
+        }
+        return;
+    }
+
+    if (submit) submit.disabled = true;
+
+    if (message) message.textContent = "Please wait...";
+
+    try {
+        let result;
+
+        if (authMode === "register") {
+            result = await client.auth.signUp({
+                email,
+                password
+            });
+        } else {
+            result = await client.auth.signInWithPassword({
+                email,
+                password
+            });
+        }
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        if (authMode === "register" && !result.data.session) {
+            if (message) {
+                message.textContent =
+                    "Account உருவாக்கப்பட்டது. Email-ஐச் சரிபார்த்து login செய்யவும்.";
+            }
+        } else {
+            if (message) {
+                message.textContent = "Login successful!";
+            }
+
+            const modal = document.getElementById("authModal");
+
+            if (modal?.open) modal.close();
+
+            await updateAccountUI();
+        }
+    } catch (error) {
+        if (message) {
+            message.textContent =
+                error.message || "Authentication failed.";
+        }
+    } finally {
+        if (submit) submit.disabled = false;
+    }
 }
 
-/* ---------------- INITIALIZATION ---------------- */
+async function updateAccountUI() {
+    const client = getSupabaseClient();
 
-async function init() {
-  if ($("yearNow")) {
-    $("yearNow").textContent = new Date().getFullYear();
-  }
+    const loginButton = document.getElementById("loginBtn");
+    const registerButton = document.getElementById("registerBtn");
 
-  renderRows();
-  renderHero();
-  restartSlider();
+    if (!loginButton || !registerButton) return;
 
-  if ($("prevSlide")) {
-    $("prevSlide").onclick = () => {
-      nextSlide(-1);
-      restartSlider();
-    };
-  }
+    let user = null;
 
-  if ($("nextSlide")) {
-    $("nextSlide").onclick = () => {
-      nextSlide(1);
-      restartSlider();
-    };
-  }
+    if (client) {
+        try {
+            const { data, error } = await client.auth.getUser();
 
-  if ($("searchInput")) {
-    $("searchInput").addEventListener("input", event => {
-      query = event.target.value.trim();
-      activeSection = "home";
-      renderRows();
-    });
-  }
+            if (!error) user = data.user;
+        } catch (error) {
+            console.warn("Could not retrieve account.");
+        }
+    }
 
-  document.querySelectorAll("[data-section]").forEach(button => {
-    button.addEventListener("click", () => {
-      setSection(button.dataset.section);
-    });
-  });
+    loginButton.hidden = Boolean(user);
+    registerButton.hidden = Boolean(user);
 
-  if ($("menuToggle")) {
-    $("menuToggle").onclick = () => {
-      $("mainNav")?.classList.toggle("open");
-    };
-  }
+    let accountArea = document.getElementById("accountArea");
 
-  if ($("loginBtn")) {
-    $("loginBtn").onclick = () => showAuth("login");
-  }
+    if (!accountArea) {
+        accountArea = document.createElement("div");
+        accountArea.id = "accountArea";
+        accountArea.className = "account-area";
 
-  if ($("registerBtn")) {
-    $("registerBtn").onclick = () => showAuth("register");
-  }
+        const authButtons = document.querySelector(".auth-buttons");
 
-  document.querySelectorAll("[data-close]").forEach(button => {
-    button.addEventListener("click", () => {
-      const modal = $(button.dataset.close);
+        if (authButtons) {
+            authButtons.appendChild(accountArea);
+        } else {
+            registerButton.insertAdjacentElement(
+                "afterend",
+                accountArea
+            );
+        }
+    }
 
-      if (modal && typeof modal.close === "function") {
-        modal.close();
-      }
-    });
-  });
+    accountArea.replaceChildren();
 
-  document.querySelectorAll("dialog").forEach(dialog => {
-    dialog.addEventListener("click", event => {
-      if (event.target === dialog) {
-        dialog.close();
-      }
-    });
-  });
+    if (user) {
+        const email = document.createElement("span");
 
-  if ($("playerModal")) {
-    $("playerModal").addEventListener("close", () => {
-      if ($("videoFrame")) {
-        $("videoFrame").innerHTML = "";
-      }
-    });
-  }
+        email.className = "account-email";
+        email.textContent = user.email || "Logged in";
 
-  if ($("authForm")) {
-    $("authForm").addEventListener("submit", handleAuthSubmit);
-  }
+        const logoutButton = document.createElement("button");
 
-  let touchStartX = 0;
+        logoutButton.type = "button";
+        logoutButton.className = "btn";
+        logoutButton.textContent = "Logout";
 
-  if ($("hero")) {
-    $("hero").addEventListener("touchstart", event => {
-      touchStartX = event.changedTouches[0].screenX;
-    }, { passive: true });
+        logoutButton.addEventListener("click", async () => {
+            if (!client) return;
 
-    $("hero").addEventListener("touchend", event => {
-      const delta =
-        event.changedTouches[0].screenX - touchStartX;
+            const { error } = await client.auth.signOut();
 
-      if (Math.abs(delta) > 45) {
-        nextSlide(delta < 0 ? 1 : -1);
-        restartSlider();
-      }
-    }, { passive: true });
-  }
+            if (error) {
+                alert(error.message);
+                return;
+            }
 
-  const client = getSupabaseClient();
+            await updateAccountUI();
+        });
 
-  if (client && !authListenerRegistered) {
-    authListenerRegistered = true;
-
-    client.auth.onAuthStateChange(() => {
-      setTimeout(() => {
-        updateAccountUI();
-      }, 0);
-    });
-  }
-
-  await updateAccountUI();
+        accountArea.append(email, logoutButton);
+    }
 }
 
-document.addEventListener("DOMContentLoaded", init);
+/* ---------- MODAL EVENTS ---------- */
+
+function closeDialog(button) {
+    const modal = button.closest("dialog");
+
+    if (modal) modal.close();
+}
+
+function setupModalEvents() {
+    document.querySelectorAll("[data-close]").forEach(button => {
+        button.addEventListener("click", () => {
+            closeDialog(button);
+        });
+    });
+
+    document.querySelectorAll("dialog").forEach(modal => {
+        modal.addEventListener("click", event => {
+            if (event.target === modal) {
+                modal.close();
+            }
+        });
+    });
+
+    const playerModal = document.getElementById("playerModal");
+
+    if (playerModal) {
+        playerModal.addEventListener("close", closePlayer);
+    }
+}
+
+/* ---------- INITIALIZATION ---------- */
+
+function init() {
+    const year = document.getElementById("yearNow");
+
+    if (year) {
+        year.textContent = new Date().getFullYear();
+    }
+
+    rebuildTitles();
+
+    const searchInput = document.getElementById("searchInput");
+
+    if (searchInput) {
+        searchInput.addEventListener("input", event => {
+            currentSearch = event.target.value.trim();
+            renderRows();
+        });
+    }
+
+    document.querySelectorAll("[data-section]").forEach(link => {
+        link.addEventListener("click", event => {
+            event.preventDefault();
+            setSection(link.dataset.section);
+        });
+    });
+
+    const menuToggle = document.getElementById("menuToggle");
+    const mainNav = document.getElementById("mainNav");
+
+    if (menuToggle && mainNav) {
+        menuToggle.addEventListener("click", () => {
+            mainNav.classList.toggle("open");
+        });
+    }
+
+    document.getElementById("loginBtn")?.addEventListener(
+        "click",
+        () => showAuth("login")
+    );
+
+    document.getElementById("registerBtn")?.addEventListener(
+        "click",
+        () => showAuth("register")
+    );
+
+    document.getElementById("prevSlide")?.addEventListener(
+        "click",
+        () => moveHero(-1)
+    );
+
+    document.getElementById("nextSlide")?.addEventListener(
+        "click",
+        () => moveHero(1)
+    );
+
+    document.getElementById("authForm")?.addEventListener(
+        "submit",
+        handleAuthSubmit
+    );
+
+    setupModalEvents();
+    restartSlider();
+
+    const client = getSupabaseClient();
+
+    if (client) {
+        client.auth.onAuthStateChange(() => {
+            setTimeout(() => {
+                updateAccountUI();
+            }, 0);
+        });
+    }
+
+    updateAccountUI();
+
+    window.addEventListener(
+        "tamilflix:movies-updated",
+        event => {
+            if (Array.isArray(event.detail)) {
+                setDatabaseMovies(event.detail);
+            }
+        }
+    );
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+} else {
+    init();
+         }
