@@ -870,6 +870,11 @@ function showAuth(mode) {
     const message = document.getElementById("authMessage");
     const form = document.getElementById("authForm");
 
+    if (!modal) {
+        alert("Login form not found. Please refresh the page.");
+        return;
+    }
+
     if (heading) {
         heading.textContent =
             authMode === "register" ? "Create Account" : "Login";
@@ -880,12 +885,20 @@ function showAuth(mode) {
             authMode === "register" ? "Register" : "Login";
     }
 
-    if (message) message.textContent = "";
+    if (message) {
+        message.textContent = "";
+    }
 
-    if (form) form.reset();
+    if (form) {
+        form.reset();
+    }
 
-    if (modal && typeof modal.showModal === "function") {
-        modal.showModal();
+    if (typeof modal.showModal === "function") {
+        if (!modal.open) {
+            modal.showModal();
+        }
+    } else {
+        alert("Your browser does not support the login dialog.");
     }
 }
 
