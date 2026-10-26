@@ -3,15 +3,17 @@
 (function(){
 "use strict";
 function toast(message){window.TamilflixApp?.toast(message)}
-window.TamilflixDownload=function(id){
+window.TamilflixDownload=function(id,language){
  const item=window.TamilflixApp?.titles.find(x=>String(x.id)===String(id));
  if(!item){toast("Title not found.");return}
- if(!item.video){toast("No authorised direct video URL has been added.");return}
+ const urls={...(item.languageVideos||{})};if(item.video&&!Object.values(urls).some(Boolean))urls[item.language||"English"]=item.video;
+ const videoUrl=urls[language]||"";
+ if(!videoUrl){toast("No authorised video URL has been added for "+(language||"this language")+".");return}
  try{
-  const url=new URL(item.video,window.location.href);
+  const url=new URL(videoUrl,window.location.href);
   if(!["http:","https:"].includes(url.protocol)){toast("Unsupported video URL.");return}
   const link=document.createElement("a");link.href=url.href;
-  link.download=(item.title||"tamilflix-video").replace(/[^\w-]+/g,"_")+".mp4";
+  link.download=(item.title||"tamilflix-video").replace(/[^\w-]+/g,"_")+"_"+(language||"video")+".mp4";
   link.target="_blank";link.rel="noopener noreferrer";
   document.body.appendChild(link);link.click();link.remove();
   toast("Download requested. The video host may control whether direct download is allowed.");

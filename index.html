@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#090b12">
   <title>Tamilflix — Movies, Series & Entertainment</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
 </head>
 <body>
@@ -14,7 +15,7 @@
     <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
     <nav id="mainNav">
       <a href="#home">⌂ Home</a><a href="#movies">▣ Movies</a><a href="#marvel">✦ Marvel</a>
-      <a href="#anime">◈ Anime</a><a href="#series">▤ Series</a><a href="#my-list">♡ My List</a>
+      <a href="#anime">◈ Anime</a><a href="#series">▤ Series</a><a href="#my-list">♡ My List</a><button class="nav-request-btn" id="openRequestBtn" type="button">＋ Request a Movie</button>
     </nav>
     <div class="header-actions">
       <form id="searchForm" class="search-box"><input id="searchInput" type="search" placeholder="Search movies..." aria-label="Search movies"><button aria-label="Search">⌕</button></form>
@@ -90,19 +91,32 @@
         <label class="span-2">Poster URL<input id="moviePoster" type="url" placeholder="Auto Poster can fill this"></label>
         <label class="span-2">Backdrop URL<input id="movieBackdrop" type="url" placeholder="Optional backdrop image"></label>
         <label class="span-2">Description<textarea id="movieDescription" rows="3"></textarea></label>
-        <label class="span-2">Video URL (only content you may distribute)<input id="movieVideo" type="url" placeholder="https://..."></label></div>
+        <label class="span-2">Default Video URL (optional; only content you may distribute)<input id="movieVideo" type="url" placeholder="Legacy / default video URL"></label>
+        <div class="language-video-fields span-2"><p class="field-group-title">Language versions (add a separate authorised video URL for each language)</p>
+          <label>Tamil video URL<input id="videoTamil" type="url" placeholder="Tamil direct video URL"></label>
+          <label>Sinhala video URL<input id="videoSinhala" type="url" placeholder="Sinhala direct video URL"></label>
+          <label>English video URL<input id="videoEnglish" type="url" placeholder="English direct video URL"></label>
+          <label>Hindi video URL<input id="videoHindi" type="url" placeholder="Hindi direct video URL"></label>
+          <label>Telugu video URL<input id="videoTelugu" type="url" placeholder="Telugu direct video URL"></label>
+        </div></div>
         <div class="admin-actions"><button type="button" id="autoPosterBtn" class="btn btn-ghost">🖼 Auto Poster</button><button type="button" id="posterPreviewBtn" class="btn btn-ghost">Preview Poster</button><button type="submit" class="btn btn-primary">Save Movie</button></div>
         <div class="api-key-row"><label>OMDb API key<input id="omdbKey" placeholder="Enter your free OMDb API key"></label><small>Saved only in this browser.</small></div>
         <div id="posterPreview" class="poster-preview hidden"><img id="posterPreviewImage" alt="Poster preview"><p id="posterPreviewCaption"></p></div>
         <p id="adminMessage" class="form-message"></p>
       </form>
-      <hr><h3>Saved Titles</h3><div id="adminMovieList" class="admin-movie-list"></div>
+      <hr><h3>Saved Titles</h3><div id="adminMovieList" class="admin-movie-list"></div><hr><h3>🎬 User Movie Requests</h3><p class="muted">Requests submitted by users. Sign in with the configured admin account to view and update requests.</p><div class="admin-actions"><button type="button" id="refreshRequestsBtn" class="btn btn-ghost">↻ Refresh Requests</button></div><p id="requestAdminMessage" class="form-message"></p><div id="adminRequestList" class="admin-movie-list"><p class="muted">Open Admin Panel and refresh to load requests.</p></div>
     </div>
   </div>
 
+  <div class="modal hidden" id="requestModal" role="dialog" aria-modal="true" aria-labelledby="requestTitle">
+    <div class="modal-card"><button class="modal-close" data-close="requestModal" aria-label="Close">×</button><h2 id="requestTitle">Request a Movie</h2><p class="muted">Tell us which title you would like to see on Tamilflix.</p>
+      <form id="movieRequestForm"><label>Movie / Series name *<input id="requestMovieTitle" required maxlength="120" placeholder="Enter title"></label><label>Preferred language<select id="requestLanguage"><option>Tamil</option><option>Sinhala</option><option>English</option><option>Hindi</option><option>Telugu</option><option>Any language</option></select></label><label>Category<select id="requestCategory"><option>Movies</option><option>Marvel</option><option>Anime</option><option>Series</option></select></label><label>Extra details (optional)<textarea id="requestNotes" rows="3" maxlength="500" placeholder="Year, season, version, etc."></textarea></label><button class="btn btn-primary full-width" type="submit">Send Request</button><p id="requestFormMessage" class="form-message" aria-live="polite"></p></form>
+    </div>
+  </div>
   <div class="toast hidden" id="toast"></div>
   <script src="script.js"></script>
   <script src="admin.js"></script>
   <script src="download.js"></script>
+  <script src="request.js"></script>
 </body>
 </html>
