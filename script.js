@@ -1092,6 +1092,7 @@ function setupModalEvents() {
 /* ---------- INITIALIZATION ---------- */
 
 function init() {
+   alert("Tamilflix script.js is working!");
     const year = document.getElementById("yearNow");
 
     if (year) {
