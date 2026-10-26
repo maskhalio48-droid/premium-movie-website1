@@ -43,7 +43,11 @@
 <dialog class="modal" id="detailsModal"><button class="modal-close" data-close="detailsModal" aria-label="Close">×</button>
   <div class="details-layout"><img id="detailPoster" alt=""><div><span class="eyebrow" id="detailCategory">TAMILFLIX TITLE</span><h2 id="detailTitle"></h2><p class="meta" id="detailMeta"></p><p id="detailDescription"></p><div id="languageArea"></div><div class="hero-actions"><button class="btn btn-red" id="detailWatch">▶ Watch Now</button><button class="btn btn-outline" id="detailList">＋ My List</button></div></div></div>
 </dialog>
-<dialog class="modal player-modal" id="playerModal"><button class="modal-close" data-close="playerModal" aria-label="Close player">×</button><h2 id="playerTitle">Now Playing</h2><p class="player-language" id="playerLanguage"></p><div class="video-frame" id="videoFrame"><p>Choose a video link to play it here.</p></div><p class="player-note">Playback works here when the video owner allows embedding.</p></dialog>
+<dialog class="modal player-modal" id="playerModal"><button class="modal-close" data-close="playerModal" aria-label="Close player">×</button><h2 id="playerTitle">Now Playing</h2><p class="player-language" id="playerLanguage"></p><div class="video-frame" id="videoFrame">
+    <p>Choose a video link to play it here.</p>
+</div>
+
+<div id="downloadArea" class="download-area"></div><p class="player-note">Playback works here when the video owner allows embedding.</p></dialog>
 <dialog class="modal auth-modal" id="authModal"><button class="modal-close" data-close="authModal" aria-label="Close">×</button><h2 id="authHeading">Login</h2><p class="muted">Sign in to your Tamilflix account.</p><form id="authForm"><label>Email<input type="email" id="authEmail" required placeholder="you@example.com"></label><label>Password<input type="password" id="authPassword" required minlength="6" placeholder="At least 6 characters"></label><button class="btn btn-red btn-full" type="submit" id="authSubmit">Continue</button></form><p class="form-message" id="authMessage" role="status"></p></dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <dialog class="modal" id="adminModal">
