@@ -756,8 +756,23 @@ function openPlayer(movie, rawURL, language = "Default") {
         frame.appendChild(video);
 
         if (downloadArea) {
-            const downloadLink = document.createElement("a");
+            if (
+                typeof window.tamilflixCreateDownloadButton === "function"
+            ) {
+                window.tamilflixCreateDownloadButton(url, movie.title);
+            } else {
+                const downloadLink = document.createElement("a");
 
+                downloadLink.href = url;
+                downloadLink.textContent = "⬇ Download Video";
+                downloadLink.target = "_blank";
+                downloadLink.rel = "noopener noreferrer";
+                downloadLink.className = "btn btn-red";
+
+                downloadArea.appendChild(downloadLink);
+                downloadArea.classList.remove("hidden");
+            }
+        }
             downloadLink.href = url;
             downloadLink.textContent = "⬇ Download Video";
             downloadLink.target = "_blank";
