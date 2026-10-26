@@ -17,3 +17,11 @@ IMPORTANT BEFORE UPLOADING
 7. Demo titles use public image URLs as examples; replace them with posters/images you have rights to use.
 8. This is a replacement frontend package and may not exactly reproduce every detail of your earlier repository version. Make a backup/commit before replacing files. If you want to preserve the old design exactly, restore the earlier index.html/style.css/script.js from GitHub History before merging specific features.
 9. Footer credit: Website Developed by Jayantha Dilan.
+
+
+WATCH / DOWNLOAD UPDATE
+- Watch and Download buttons are stacked vertically and styled red.
+- Watch opens an in-page video player; use Full Screen or the player fullscreen control.
+- Add a direct MP4/WebM URL for videos you own or are authorised to distribute.
+- VidMate is a separate third-party app/service; this website does not use VidMate technology or bypass streaming protections. Download availability depends on the video host and browser.
+- These frontend files have not been tested against your actual Supabase schema or live deployment. Keep a backup before replacing files.
