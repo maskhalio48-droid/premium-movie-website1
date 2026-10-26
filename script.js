@@ -591,75 +591,172 @@ function getEmbed(raw) {
   }
 }
 
+/* ---------------- VIDEO PLAYER + DOWNLOAD ---------------- */
+
 function openPlayer(t, url = "", language = "") {
   selectedTitle = t;
 
-  if (!$("playerModal")) return;
+  const modal = $("playerModal");
+  const frame = $("videoFrame");
 
-  $("playerTitle").textContent = t.title || "";
+  if (!modal || !frame) return;
+
+  $("playerTitle").textContent = t.title || "Movie";
 
   $("playerLanguage").textContent = language
     ? `Language: ${language}`
     : "";
 
-  const embed = getEmbed(url);
+  // Get quality links saved in the existing languages field.
+  const links = Array.isArray(t.languageLinks)
+    ? t.languageLinks.filter(item =>
+        item &&
+        typeof item.url === "string" &&
+        item.url.trim()
+      )
+    : [];
 
-  const videoFrame = $("videoFrame");
+  const directVideoPattern = /\.(mp4|webm|ogg)(?:[?#].*)?$/i;
 
-  // Direct video URL check
-  const isDirectVideo =
-    /\.(mp4|webm|ogg)(\?.*)?$/i.test(url || "") ||
-    (url || "").includes("/storage/v1/object/public/");
+  function isDirectVideo(link) {
+    return directVideoPattern.test(link) ||
+      /\/storage\/v1\/object\/public\//i.test(link);
+  }
 
-  if (isDirectVideo) {
-    videoFrame.innerHTML = `
+  function safeUrl(value) {
+    try {
+      const parsed = new URL(value, window.location.href);
+
+      if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+        return "";
+      }
+
+      return parsed.href;
+    } catch {
+      return "";
+    }
+  }
+
+  function renderVideo(videoUrl) {
+    const safe = safeUrl(videoUrl);
+
+    if (!safe) {
+      frame.innerHTML = "<p>Invalid video URL.</p>";
+      return;
+    }
+
+    const embed = getEmbed(safe);
+
+    if (embed) {
+      frame.innerHTML = `
+        <iframe
+          src="${esc(embed)}"
+          title="${esc(t.title || "Movie")}"
+          allow="accelerometer; autoplay; clipboard-write;
+                 encrypted-media; gyroscope; picture-in-picture;
+                 web-share"
+          allowfullscreen
+          referrerpolicy="strict-origin-when-cross-origin"
+          style="width:100%;aspect-ratio:16/9;border:0"
+        ></iframe>
+
+        <p style="margin-top:12px">
+          YouTube videos play here. Download is available only
+          when the video host provides an authorized downloadable file.
+        </p>
+      `;
+
+      return;
+    }
+
+    if (!isDirectVideo(safe)) {
+      frame.innerHTML = `
+        <p>This link is not a recognized direct video file.</p>
+        <a href="${esc(safe)}"
+           target="_blank"
+           rel="noopener noreferrer">
+          Open video link
+        </a>
+      `;
+      return;
+    }
+
+    frame.innerHTML = `
       <video
         id="tamilflixVideo"
         controls
         playsinline
         preload="metadata"
-        style="width:100%;max-height:70vh;background:#000;"
+        style="width:100%;max-height:70vh;background:#000"
       >
-        <source src="${esc(url)}">
-        Your browser does not support HTML video.
+        <source src="${esc(safe)}">
+        Your browser does not support video playback.
       </video>
 
       <a
-        class="btn btn-red"
-        href="${esc(url)}"
+        href="${esc(safe)}"
         download
         target="_blank"
         rel="noopener noreferrer"
-        style="display:inline-flex;margin-top:12px;text-decoration:none;"
-      >
-        ⬇️ Download
-      </a>
+        class="btn btn-red"
+        style="display:inline-flex;margin-top:12px;text-decoration:none"
+      >⬇️ Download</a>
     `;
-  } else if (embed) {
-    videoFrame.innerHTML = `
-      <iframe
-        src="${embed}"
-        title="${esc(t.title)} ${esc(language)}"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allowfullscreen
-      ></iframe>
+  }
 
-      <p style="margin-top:12px;">
-        Download is available only for authorized direct video files.
-      </p>
+  // Create quality selector if multiple direct video files exist.
+  const qualityLinks = links.filter(item =>
+    isDirectVideo(safeUrl(item.url) || "")
+  );
+
+  if (qualityLinks.length > 0) {
+    const options = qualityLinks.map((item, index) => `
+      <option value="${index}">
+        ${esc(item.quality || item.language || `Quality ${index + 1}`)}
+      </option>
+    `).join("");
+
+    frame.innerHTML = `
+      <label for="tamilflixQuality">Video quality:</label>
+      <select id="tamilflixQuality" style="margin:8px;padding:8px">
+        ${options}
+      </select>
+      <div id="tamilflixVideoArea"></div>
     `;
+
+    const select = $("tamilflixQuality");
+    const area = $("tamilflixVideoArea");
+
+    function showSelectedQuality() {
+      const item = qualityLinks[Number(select.value)];
+      if (!item) return;
+
+      // Render inside a temporary container.
+      const oldFrame = $("videoFrame");
+      const originalHTML = oldFrame.innerHTML;
+
+      oldFrame.innerHTML = "";
+      renderVideo(item.url);
+
+      const renderedHTML = oldFrame.innerHTML;
+      oldFrame.innerHTML = originalHTML;
+
+      area.innerHTML = renderedHTML;
+    }
+
+    select.addEventListener("change", showSelectedQuality);
+    showSelectedQuality();
   } else {
-    videoFrame.innerHTML = `
-      <p>No video link added for ${esc(language || t.title)} yet.</p>
-    `;
+    renderVideo(url || t.videoUrl || "");
   }
 
   if ($("detailsModal")?.open) {
     $("detailsModal").close();
   }
 
-  $("playerModal").showModal();
+  if (!modal.open) {
+    modal.showModal();
+  }
 }
 
 /* ---------------- MY LIST ---------------- */
