@@ -1,5 +1,6 @@
 /* ==========================================
    TAMILFLIX - MAIN SCRIPT
+   alert("MAIN SCRIPT LOADED");
    Website Developed by Jayantha Dilan
 ========================================== */
 
