@@ -1,7 +1,13 @@
-(() => {
+/* Tamilflix Admin Panel
+   Movie Add / Edit / Delete
+   YouTube + direct video URLs
+   Multiple quality URLs stored in languages JSON
+*/
+
+(function () {
   "use strict";
 
-  let sb;
+  let sb = null;
   let databaseMovies = [];
   let isAdmin = false;
 
@@ -40,53 +46,9 @@
     })[char]);
   }
 
-  function mapMovie(row) {
-    const category = String(row.category || "movie").toLowerCase();
-
-    return {
-      id: String(row.id),
-      title: row.title || "",
-      year: row.year || "",
-      genre: row.genre || "",
-      rating: row.rating || "U",
-      type: category,
-      description: row.description || "",
-      poster: row.poster_url || "",
-      backdrop: row.backdrop_url || row.poster_url || "",
-      videoUrl: row.video_url || "",
-      languageLinks: Array.isArray(row.languages) ? row.languages : []
-    };
-  }
-
-  async function loadPublicMovies() {
-    const client = getClient();
-    if (!client) return;
-
-    const { data, error } = await client
-      .from("movies")
-      .select("*")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Could not load Tamilflix movies:", error.message);
-      return;
-    }
-
-    if (Array.isArray(data) && data.length > 0) {
-      databaseMovies = data;
-      window.tamilflixDatabaseMovies = data;
-
-      if (typeof renderRows === "function") {
-        // Keep the existing page's rendering functions.
-        titles = data.map(mapMovie);
-        renderRows();
-
-        if (typeof renderHero === "function") {
-          renderHero();
-        }
-      }
-    }
+  function updateAdminButton() {
+    const button = $("tamilflixAdminButton");
+    if (button) button.hidden = !isAdmin;
   }
 
   function createAdminButton() {
@@ -104,8 +66,7 @@
     if (registerButton) {
       registerButton.insertAdjacentElement("afterend", button);
     } else {
-      const header = document.querySelector("header");
-      if (header) header.appendChild(button);
+      document.querySelector("header")?.appendChild(button);
     }
 
     button.addEventListener("click", async () => {
@@ -116,7 +77,7 @@
 
       const modal = $("adminModal");
 
-      if (modal && typeof modal.showModal === "function") {
+      if (modal?.showModal) {
         modal.showModal();
       }
 
@@ -137,7 +98,7 @@
       const { data: userData, error: userError } =
         await client.auth.getUser();
 
-      if (userError || !userData.user) {
+      if (userError || !userData?.user) {
         isAdmin = false;
         updateAdminButton();
         return;
@@ -147,18 +108,60 @@
 
       isAdmin = !error && data === true;
     } catch (error) {
-      console.error("Admin check failed:", error);
+      console.error("Admin verification failed:", error);
       isAdmin = false;
     }
 
     updateAdminButton();
   }
 
-  function updateAdminButton() {
-    const button = $("tamilflixAdminButton");
+  function mapMovie(row) {
+    return {
+      id: String(row.id),
+      title: row.title || "",
+      year: row.year || "",
+      genre: row.genre || "",
+      rating: row.rating || "U",
+      type: String(row.category || "movie").toLowerCase(),
+      description: row.description || "",
+      poster: row.poster_url || "",
+      backdrop: row.backdrop_url || row.poster_url || "",
+      videoUrl: row.video_url || "",
+      languageLinks: Array.isArray(row.languages) ? row.languages : []
+    };
+  }
 
-    if (button) {
-      button.hidden = !isAdmin;
+  async function loadPublicMovies() {
+    const client = getClient();
+    if (!client) return;
+
+    const { data, error } = await client
+      .from("movies")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Could not load movies:", error.message);
+      return;
+    }
+
+    databaseMovies = data || [];
+    window.tamilflixDatabaseMovies = databaseMovies;
+
+    if (databaseMovies.length && typeof renderRows === "function") {
+      window.tamilflixDatabaseMovies = databaseMovies;
+      window.tamilflixMapMovie = mapMovie;
+
+      // script.js can use this mapping if needed.
+      window.tamilflixMappedMovies = databaseMovies.map(mapMovie);
+      titles = window.tamilflixMappedMovies;
+
+      renderRows();
+
+      if (typeof renderHero === "function") {
+        renderHero();
+      }
     }
   }
 
@@ -181,7 +184,6 @@
     }
 
     databaseMovies = data || [];
-    window.tamilflixDatabaseMovies = databaseMovies;
 
     if (!databaseMovies.length) {
       list.textContent = "No movies added yet.";
@@ -189,13 +191,16 @@
     }
 
     list.innerHTML = databaseMovies.map(movie => `
-      <div class="admin-movie-item" style="padding:12px;border-bottom:1px solid #444">
+      <div class="admin-movie-item"
+           style="padding:12px;border-bottom:1px solid #444">
         <strong>${escapeHTML(movie.title)}</strong>
         <span>${movie.is_active ? "Active" : "Hidden"}</span>
-        <button type="button" data-edit-movie="${escapeHTML(movie.id)}">
+        <button type="button"
+                data-edit-movie="${escapeHTML(movie.id)}">
           Edit
         </button>
-        <button type="button" data-delete-movie="${escapeHTML(movie.id)}">
+        <button type="button"
+                data-delete-movie="${escapeHTML(movie.id)}">
           Delete
         </button>
       </div>
@@ -213,14 +218,12 @@
 
     list.querySelectorAll("[data-delete-movie]").forEach(button => {
       button.addEventListener("click", async () => {
-        const id = button.dataset.deleteMovie;
-
         if (!confirm("Delete this movie permanently?")) return;
 
         const { error } = await client
           .from("movies")
           .delete()
-          .eq("id", id);
+          .eq("id", button.dataset.deleteMovie);
 
         if (error) {
           alert("Delete failed: " + error.message);
@@ -244,6 +247,7 @@
     $("movieBackdrop").value = movie.backdrop_url || "";
     $("movieDescription").value = movie.description || "";
     $("movieVideo").value = movie.video_url || "";
+
     $("movieLanguages").value = JSON.stringify(
       Array.isArray(movie.languages) ? movie.languages : [],
       null,
@@ -251,7 +255,10 @@
     );
 
     const message = $("adminMessage");
-    if (message) message.textContent = "Editing: " + movie.title;
+    if (message) {
+      message.textContent =
+        "Editing: " + (movie.title || "Selected movie");
+    }
 
     $("movieTitle").focus();
   }
@@ -263,7 +270,9 @@
     const message = $("adminMessage");
 
     if (!client || !isAdmin) {
-      message.textContent = "Please log in with your admin account.";
+      if (message) {
+        message.textContent = "Please log in with your admin account.";
+      }
       return;
     }
 
@@ -274,10 +283,10 @@
       languages = input ? JSON.parse(input) : [];
 
       if (!Array.isArray(languages)) {
-        throw new Error("Language links must be a JSON array.");
+        throw new Error("Quality and language links must be a JSON array.");
       }
     } catch (error) {
-      message.textContent = "Language links error: " + error.message;
+      message.textContent = "Links format error: " + error.message;
       return;
     }
 
@@ -323,6 +332,7 @@
     }
 
     message.textContent = "Movie saved successfully!";
+
     $("movieForm").reset();
     $("movieId").value = "";
 
@@ -331,23 +341,20 @@
   }
 
   function setupCloseButtons() {
-    document.querySelectorAll("[data-close]").forEach(button => {
+    document.querySelectorAll("[data-close-modal]").forEach(button => {
       button.addEventListener("click", () => {
-        const modal = $(button.dataset.close);
-        if (modal && typeof modal.close === "function") {
-          modal.close();
-        }
+        const modal = button.closest("dialog");
+        if (modal) modal.close();
       });
     });
   }
 
-  async function initAdmin() {
-    sb = getClient();
-
+  function initAdmin() {
     createAdminButton();
     setupCloseButtons();
 
     const form = $("movieForm");
+
     if (form) {
       form.addEventListener("submit", saveMovie);
     }
@@ -360,8 +367,8 @@
       });
     }
 
-    await loadPublicMovies();
-    await checkAdmin();
+    loadPublicMovies();
+    checkAdmin();
   }
 
   document.addEventListener("DOMContentLoaded", initAdmin);
