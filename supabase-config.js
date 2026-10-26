@@ -1,8 +1,6 @@
 /* Tamilflix Supabase Configuration */
 
 window.SUPABASE_URL = "https://ciixfxvzlqcbmfdhbqbx.supabase.co";
-
-// உங்கள் தற்போதைய Supabase publishable key-ஐ இங்கே இடுங்கள்
 window.SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EEibbzI3PHIVGv8inmFsIg_QiIPmnjB";
 
 (function () {
