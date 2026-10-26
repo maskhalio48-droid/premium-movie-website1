@@ -661,9 +661,18 @@ function openPlayer(t, url = "", language = "") {
         ></iframe>
 
         <p style="margin-top:12px">
-          YouTube videos play here. Download is available only
-          when the video host provides an authorized downloadable file.
-        </p>
+          const loadingMessage = document.createElement("div");
+loadingMessage.id = "videoLoadingMessage";
+loadingMessage.textContent = "🎬 Video loading, please wait...";
+loadingMessage.style.cssText = `
+    color: white;
+    text-align: center;
+    padding: 30px 10px;
+    font-size: 16px;
+`;
+
+videoFrame.innerHTML = "";
+videoFrame.appendChild(loadingMessage); </p>
       `;
 
       return;
