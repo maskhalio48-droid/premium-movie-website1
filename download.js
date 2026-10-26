@@ -1,90 +1,108 @@
-/*
- * Tamilflix Download System
- * Downloads only authorized direct video files.
- */
+/* ==========================================
+   TAMILFLIX - VIDEO DOWNLOAD
+   Website Developed by Jayantha Dilan
+========================================== */
+
+"use strict";
 
 (function () {
-    "use strict";
+    const $ = id => document.getElementById(id);
 
-    function isDirectVideoUrl(url) {
+    function isValidHttpUrl(value) {
         try {
-            const parsed = new URL(url);
+            const url = new URL(value);
 
-            if (!["http:", "https:"].includes(parsed.protocol)) {
-                return false;
-            }
-
-            return /\.(mp4|webm|mov|m4v)(?:$|[?#])/i.test(
-                parsed.pathname + parsed.search + parsed.hash
-            );
+            return url.protocol === "https:" ||
+                   url.protocol === "http:";
         } catch {
             return false;
         }
     }
 
-    function createDownloadButton(videoUrl) {
-        const button = document.createElement("button");
+    function isDirectVideoUrl(value) {
+        if (!isValidHttpUrl(value)) return false;
 
-        button.type = "button";
-        button.textContent = "⬇️ Download Video";
-        button.className = "tamilflix-download-button";
+        try {
+            const url = new URL(value);
+            const path = url.pathname.toLowerCase();
 
-        button.addEventListener("click", function () {
-            if (!isDirectVideoUrl(videoUrl)) {
-                alert(
-                    "இந்த இணைப்பு நேரடி வீடியோ கோப்பு அல்ல. " +
-                    "அனுமதிக்கப்பட்ட நேரடி MP4 அல்லது WebM இணைப்பைப் பயன்படுத்தவும்."
-                );
-                return;
-            }
+            return /\.(mp4|webm|ogv|mov|m4v)$/i.test(path);
+        } catch {
+            return false;
+        }
+    }
 
-            const confirmed = confirm(
-                "இந்த வீடியோவை download செய்ய உங்களுக்கு அனுமதி உள்ளதா?"
-            );
+    function clearDownloadArea() {
+        const area = $("downloadArea");
 
-            if (!confirmed) {
-                return;
-            }
+        if (!area) return;
 
-            const link = document.createElement("a");
+        area.replaceChildren();
+        area.classList.add("hidden");
+    }
 
-            link.href = videoUrl;
-            link.target = "_blank";
-            link.rel = "noopener noreferrer";
+    function createDownloadButton(videoUrl, title) {
+        const area = $("downloadArea");
 
-            /*
-             * Cross-origin links may ignore the download attribute.
-             * The hosting server must permit downloading.
-             */
-            link.download = "";
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        });
+        if (!area) return;
 
-        return button;
+        clearDownloadArea();
+
+        if (!isDirectVideoUrl(videoUrl)) {
+            return;
+        }
+
+        const heading = document.createElement("p");
+
+        heading.textContent =
+            "Download is available only for direct video files you are authorized to download.";
+
+        const link = document.createElement("a");
+
+        link.href = videoUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "⬇️ Download Video";
+        link.className = "btn btn-red";
+
+        /*
+         * Cross-origin downloads may open the video
+         * instead of downloading it. The server hosting
+         * the file must support downloads.
+         */
+
+        link.setAttribute("aria-label", "Open video download: " + title);
+
+        area.append(heading, link);
+        area.classList.remove("hidden");
+    }
+
+    function handlePlayerOpened(event) {
+        const detail = event.detail || {};
+
+        clearDownloadArea();
+
+        if (!detail.videoUrl) return;
+
+        createDownloadButton(
+            detail.videoUrl,
+            detail.title || "Tamilflix video"
+        );
     }
 
     /*
-     * Use this function when opening an authorized direct video.
-     *
-     * Example:
-     * TamilflixDownload.addButton(
-     *     document.getElementById("downloadArea"),
-     *     "https://your-domain.example/movie.mp4"
-     * );
+     * Other scripts can call this function when
+     * opening a movie player.
      */
-    window.TamilflixDownload = {
-        isDirectVideoUrl,
+    window.tamilflixCreateDownloadButton = createDownloadButton;
+    window.tamilflixClearDownloadArea = clearDownloadArea;
 
-        addButton: function (container, videoUrl) {
-            if (!container || !videoUrl) {
-                return;
-            }
+    document.addEventListener(
+        "tamilflix:player-opened",
+        handlePlayerOpened
+    );
 
-            container.replaceChildren(
-                createDownloadButton(videoUrl)
-            );
-        }
-    };
+    document.addEventListener("DOMContentLoaded", () => {
+        clearDownloadArea();
+    });
 })();
