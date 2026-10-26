@@ -1,73 +1,286 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080a0f"><title>Tamilflix — Movies, Marvel & Anime</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080a0f">
+
+  <title>Tamilflix — Movies, Marvel & Anime</title>
+
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
 <header class="topbar">
-  <a class="brand" href="#" aria-label="Tamilflix Home"><span class="brand-mark">▶</span><span>Tamil<span class="red">flix</span></span></a>
+
+  <a class="brand" href="#" aria-label="Tamilflix Home">
+    <span class="brand-mark">▶</span>
+    <span>Tamil<span class="red">flix</span></span>
+  </a>
+
   <nav class="main-nav" id="mainNav">
-    <button class="nav-link active" data-section="home">⌂ <span>Home</span></button>
-    <button class="nav-link" data-section="movies">▣ <span>Movies</span></button>
-    <button class="nav-link" data-section="marvel">✦ <span>Marvel</span></button>
-    <button class="nav-link" data-section="anime">✿ <span>Anime</span></button>
-    <button class="nav-link" data-section="series">▤ <span>Series</span></button>
-    <button class="nav-link" data-section="mylist">♡ <span>My List</span></button>
+    <button class="nav-link active" data-section="home">⌂ Home</button>
+    <button class="nav-link" data-section="movies">▣ Movies</button>
+    <button class="nav-link" data-section="marvel">✦ Marvel</button>
+    <button class="nav-link" data-section="anime">✿ Anime</button>
+    <button class="nav-link" data-section="series">▤ Series</button>
+    <button class="nav-link" data-section="mylist">♡ My List</button>
   </nav>
-  <label class="searchbox"><span>⌕</span><input id="searchInput" type="search" placeholder="Search titles..." autocomplete="off"></label>
-  <div class="auth-buttons"><button class="btn btn-outline" id="loginBtn">Login</button><button class="btn btn-red" id="registerBtn">Register</button></div>
-  <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
-</header>
-<main>
-  <section class="hero" id="hero"><div class="hero-shade"></div><div class="hero-content">
-    <span class="eyebrow">FEATURED</span><h1 id="heroTitle">Discover your next favourite</h1>
-    <p class="meta" id="heroMeta">Movies • Series • Entertainment</p><p class="hero-description" id="heroDescription">Find movies, Marvel titles, anime and series in one place.</p>
-    <div class="hero-actions"><button class="btn btn-red btn-large" id="heroWatch">▶ Watch Now</button><button class="btn btn-outline btn-large" id="heroList">＋ Add to My List</button></div>
-    <div class="slider-dots" id="sliderDots"></div>
-  </div><div class="slider-controls"><button id="prevSlide" aria-label="Previous">‹</button><button id="nextSlide" aria-label="Next">›</button></div></section>
-  <div class="page-content">
-    <section class="catalog-section" id="trendingSection"><div class="section-heading"><h2>🔥 Trending Movies</h2><button class="see-all" data-section="movies">See All →</button></div><div class="poster-row" id="trendingMovies"></div></section>
-    <section class="catalog-section" id="marvelSection"><div class="section-heading"><h2>✦ Marvel Universe</h2><button class="see-all" data-section="marvel">See All →</button></div><div class="poster-row" id="marvelTitles"></div></section>
-    <section class="catalog-section" id="animeSection"><div class="section-heading"><h2>✿ Anime</h2><button class="see-all" data-section="anime">See All →</button></div><div class="poster-row" id="animeTitles"></div></section>
-    <section class="catalog-section" id="seriesSection"><div class="section-heading"><h2>▤ Popular Series</h2><button class="see-all" data-section="series">See All →</button></div><div class="poster-row" id="popularSeries"></div></section>
-    <section class="catalog-section" id="noLangSection"><div class="section-heading"><h2>🎬 Movies Without Language Options</h2><span class="result-count">Single video link</span></div><div class="poster-row" id="noLangMovies"></div></section>
-    <section class="catalog-section hidden" id="allSection"><div class="section-heading"><h2 id="allHeading">Movies</h2><span class="result-count" id="resultCount"></span></div><div class="poster-grid" id="allItems"></div></section>
-    <section class="catalog-section hidden" id="myListSection"><div class="section-heading"><h2>♡ My List</h2></div><div class="poster-grid" id="myListItems"></div></section>
-    <p class="empty-state hidden" id="emptyState">No titles found. Try another search.</p>
+
+  <label class="searchbox">
+    <span>⌕</span>
+    <input
+      id="searchInput"
+      type="search"
+      placeholder="Search titles..."
+      autocomplete="off"
+    >
+  </label>
+
+  <div class="auth-buttons">
+    <button class="btn btn-outline" id="loginBtn">Login</button>
+    <button class="btn btn-red" id="registerBtn">Register</button>
   </div>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+    ☰
+  </button>
+
+</header>
+
+<main>
+
+  <section class="hero" id="hero">
+
+    <div class="hero-shade"></div>
+
+    <div class="hero-content">
+      <span class="eyebrow">FEATURED</span>
+
+      <h1 id="heroTitle">Welcome to Tamilflix</h1>
+
+      <p class="meta" id="heroMeta">
+        Movies • Series • Entertainment
+      </p>
+
+      <p class="hero-description" id="heroDescription">
+        Discover movies, Marvel titles, anime and series.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn btn-red btn-large" id="heroWatch">
+          ▶ Watch Now
+        </button>
+
+        <button class="btn btn-outline btn-large" id="heroList">
+          ＋ Add to My List
+        </button>
+      </div>
+
+      <div class="slider-dots" id="sliderDots"></div>
+    </div>
+
+    <div class="slider-controls">
+      <button id="prevSlide" aria-label="Previous">‹</button>
+      <button id="nextSlide" aria-label="Next">›</button>
+    </div>
+
+  </section>
+
+  <div class="page-content">
+
+    <section class="catalog-section" id="trendingSection">
+      <div class="section-heading">
+        <h2>🔥 Trending Movies</h2>
+        <button class="see-all" data-section="movies">See All →</button>
+      </div>
+      <div class="poster-row" id="trendingMovies"></div>
+    </section>
+
+    <section class="catalog-section" id="marvelSection">
+      <div class="section-heading">
+        <h2>✦ Marvel Universe</h2>
+        <button class="see-all" data-section="marvel">See All →</button>
+      </div>
+      <div class="poster-row" id="marvelTitles"></div>
+    </section>
+
+    <section class="catalog-section" id="animeSection">
+      <div class="section-heading">
+        <h2>✿ Anime</h2>
+        <button class="see-all" data-section="anime">See All →</button>
+      </div>
+      <div class="poster-row" id="animeTitles"></div>
+    </section>
+
+    <section class="catalog-section" id="seriesSection">
+      <div class="section-heading">
+        <h2>▤ Popular Series</h2>
+        <button class="see-all" data-section="series">See All →</button>
+      </div>
+      <div class="poster-row" id="popularSeries"></div>
+    </section>
+
+    <section class="catalog-section" id="noLangSection">
+      <div class="section-heading">
+        <h2>🎬 Single Video Movies</h2>
+        <span class="result-count">Single video link</span>
+      </div>
+      <div class="poster-row" id="noLangMovies"></div>
+    </section>
+
+    <section class="catalog-section hidden" id="allSection">
+      <div class="section-heading">
+        <h2 id="allHeading">Movies</h2>
+        <span class="result-count" id="resultCount"></span>
+      </div>
+      <div class="poster-grid" id="allItems"></div>
+    </section>
+
+    <section class="catalog-section hidden" id="myListSection">
+      <div class="section-heading">
+        <h2>♡ My List</h2>
+      </div>
+      <div class="poster-grid" id="myListItems"></div>
+    </section>
+
+    <p class="empty-state hidden" id="emptyState">
+      No titles found. Try another search.
+    </p>
+
+  </div>
+
 </main>
-<footer>© <span id="yearNow"></span> Tamilflix <span class="footer-credit">Website Developed by Jayantha Dilan</span></footer>
 
-<dialog class="modal" id="detailsModal"><button class="modal-close" data-close="detailsModal" aria-label="Close">×</button>
-  <div class="details-layout"><img id="detailPoster" alt=""><div><span class="eyebrow" id="detailCategory">TAMILFLIX TITLE</span><h2 id="detailTitle"></h2><p class="meta" id="detailMeta"></p><p id="detailDescription"></p><div id="languageArea"></div><div class="hero-actions"><button class="btn btn-red" id="detailWatch">▶ Watch Now</button><button class="btn btn-outline" id="detailList">＋ My List</button></div></div></div>
+<footer>
+  © <span id="yearNow"></span> Tamilflix
+  <span class="footer-credit">Website Developed by Jayantha Dilan</span>
+</footer>
+
+<!-- Movie details -->
+
+<dialog class="modal" id="detailsModal">
+
+  <button class="modal-close" data-close="detailsModal">×</button>
+
+  <div class="details-layout">
+
+    <img id="detailPoster" alt="Movie poster">
+
+    <div>
+      <span class="eyebrow" id="detailCategory">TAMILFLIX TITLE</span>
+
+      <h2 id="detailTitle"></h2>
+
+      <p class="meta" id="detailMeta"></p>
+
+      <p id="detailDescription"></p>
+
+      <div id="languageArea"></div>
+
+      <div class="hero-actions">
+        <button class="btn btn-red" id="detailWatch">▶ Watch Now</button>
+        <button class="btn btn-outline" id="detailList">＋ My List</button>
+      </div>
+    </div>
+
+  </div>
+
 </dialog>
-<dialog class="modal player-modal" id="playerModal"><button class="modal-close" data-close="playerModal" aria-label="Close player">×</button><h2 id="playerTitle">Now Playing</h2><p class="player-language" id="playerLanguage"></p><div class="video-frame" id="videoFrame">
-    <p>Choose a video link to play it here.</p>
-</div>
 
-<div id="downloadArea" class="download-area"></div><p class="player-note">Playback works here when the video owner allows embedding.</p></dialog>
-<dialog class="modal auth-modal" id="authModal"><button class="modal-close" data-close="authModal" aria-label="Close">×</button><h2 id="authHeading">Login</h2><p class="muted">Sign in to your Tamilflix account.</p><form id="authForm"><label>Email<input type="email" id="authEmail" required placeholder="you@example.com"></label><label>Password<input type="password" id="authPassword" required minlength="6" placeholder="At least 6 characters"></label><button class="btn btn-red btn-full" type="submit" id="authSubmit">Continue</button></form><p class="form-message" id="authMessage" role="status"></p></dialog>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Video player -->
+
+<dialog class="modal player-modal" id="playerModal">
+
+  <button class="modal-close" data-close="playerModal">×</button>
+
+  <h2 id="playerTitle">Now Playing</h2>
+
+  <p class="player-language" id="playerLanguage"></p>
+
+  <div class="video-frame" id="videoFrame">
+    <p>Choose a video link to play it here.</p>
+  </div>
+
+  <div id="downloadArea" class="download-area"></div>
+
+  <p class="player-note">
+    Playback depends on the video owner's embedding permissions.
+  </p>
+
+</dialog>
+
+<!-- Login / Register -->
+
+<dialog class="modal auth-modal" id="authModal">
+
+  <button class="modal-close" data-close="authModal">×</button>
+
+  <h2 id="authHeading">Login</h2>
+
+  <p class="muted">Sign in to your Tamilflix account.</p>
+
+  <form id="authForm">
+
+    <label>
+      Email
+      <input
+        type="email"
+        id="authEmail"
+        required
+        autocomplete="email"
+      >
+    </label>
+
+    <label>
+      Password
+      <input
+        type="password"
+        id="authPassword"
+        required
+        minlength="6"
+        autocomplete="current-password"
+      >
+    </label>
+
+    <button class="btn btn-red btn-full" type="submit" id="authSubmit">
+      Login
+    </button>
+
+    <p class="form-message" id="authMessage" role="status"></p>
+
+  </form>
+
+</dialog>
+
+<!-- Admin Panel -->
+
 <dialog class="modal" id="adminModal">
-  <button class="modal-close" data-close="adminModal" aria-label="Close">×</button>
+
+  <button class="modal-close" data-close="adminModal">×</button>
 
   <h2>⚙️ Tamilflix Admin Panel</h2>
+
   <p class="muted">Manage your movie catalogue.</p>
 
   <form id="movieForm">
+
     <input type="hidden" id="movieId">
 
-    <label>Movie Title
+    <label>
+      Movie Title
       <input type="text" id="movieTitle" required>
     </label>
 
-    <label>Year
+    <label>
+      Year
       <input type="text" id="movieYear" placeholder="2026">
     </label>
 
-    <label>Category
+    <label>
+      Category
+
       <select id="movieCategory" required>
         <option value="movie">Movie</option>
         <option value="marvel">Marvel</option>
@@ -76,46 +289,66 @@
       </select>
     </label>
 
-    <label>Genre
+    <label>
+      Genre
       <input type="text" id="movieGenre" placeholder="Action, Drama">
     </label>
 
-    <label>Rating
+    <label>
+      Rating
       <input type="text" id="movieRating" placeholder="U, UA, 13+">
     </label>
 
-    <label>Poster Image URL
-      <input type="url" id="moviePoster" placeholder="https://..." required>
+    <label>
+      Poster Image URL
+      <input type="url" id="moviePoster" required placeholder="https://...">
     </label>
 
-    <label>Backdrop Image URL
+    <label>
+      Backdrop Image URL
       <input type="url" id="movieBackdrop" placeholder="https://...">
     </label>
 
-    <label>Description
+    <label>
+      Description
       <textarea id="movieDescription" rows="3"></textarea>
     </label>
 
-    <label>Video URL
+    <label>
+      Video URL
       <input type="url" id="movieVideo" placeholder="https://...">
     </label>
 
-    <label>Language Links (JSON format)
-      <textarea id="movieLanguages" rows="5"
-        placeholder='[{"language":"Tamil","videoUrl":"https://..."}]'></textarea>
+    <label>
+      Language Links (JSON)
+      <textarea
+        id="movieLanguages"
+        rows="5"
+        placeholder='[{"language":"Tamil","videoUrl":"https://..."}]'
+      ></textarea>
     </label>
 
-    <button class="btn btn-red btn-full" type="submit">Save Movie</button>
+    <button class="btn btn-red btn-full" type="submit">
+      Save Movie
+    </button>
+
     <p id="adminMessage" class="form-message" role="status"></p>
+
   </form>
 
   <h3>Existing Movies</h3>
+
   <div id="adminMovieList"></div>
-    </dialog>
+
+</dialog>
+
+<!-- Load libraries and project scripts once -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script src="script.js"></script>
 <script src="admin.js"></script>
-  <script src="download.js"></script>
+<script src="download.js"></script>
+
 </body>
-</html>
+    </html>
