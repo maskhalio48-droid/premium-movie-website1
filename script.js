@@ -1,127 +1,82 @@
-/* TAMILFLIX — Website Developed by Jayantha Dilan */
+/* Tamilflix frontend. Local demo titles are included; replace with authorised content. */
+(function(){
 "use strict";
-
-const demoMovies = [
-  {id:"demo-1",title:"Sample Tamil Movie",type:"movie",description:"Demo title. Replace this with content you own or are authorized to distribute.",poster:"https://placehold.co/400x600/171b29/ffffff?text=Tamilflix",backdrop:"",languages:["Tamil"],watch_url:"",download_url:"",quality:"",is_demo:true},
-  {id:"demo-2",title:"Sample English Movie",type:"movie",description:"Demo title. Add your authorized watch and download links in the admin panel.",poster:"https://placehold.co/400x600/20283a/ffffff?text=Movie",backdrop:"",languages:["English"],watch_url:"",download_url:"",quality:"",is_demo:true},
-  {id:"demo-3",title:"Sample Series",type:"series",description:"Demo series card.",poster:"https://placehold.co/400x600/252033/ffffff?text=Series",backdrop:"",languages:["Sinhala"],watch_url:"",download_url:"",quality:"",is_demo:true}
+const STORAGE_KEY="tamilflix_titles";
+const LIST_KEY="tamilflix_my_list";
+const demoTitles=[
+{id:"demo1",title:"Spider-Man: No Way Home",year:2021,category:"Marvel",genre:"Action / Adventure",rating:8.2,language:"English",poster:"https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg",backdrop:"https://image.tmdb.org/t/p/w1280/14QbnygCuTO0vl7CAFmPf1fgZfV.jpg",description:"A young hero faces a world-changing challenge.",video:""},
+{id:"demo2",title:"Avengers: Endgame",year:2019,category:"Marvel",genre:"Action / Sci-Fi",rating:8.4,language:"English",poster:"https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",backdrop:"https://image.tmdb.org/t/p/w1280/7RyHsO4ySX3R2w0II0L1lI1M4x8.jpg",description:"The heroes unite for a final battle.",video:""},
+{id:"demo3",title:"Your Name",year:2016,category:"Anime",genre:"Animation / Romance",rating:8.4,language:"Japanese",poster:"https://image.tmdb.org/t/p/w500/q719jXXEzOoYaps6babgknONONX.jpg",backdrop:"",description:"Two teenagers discover a mysterious connection.",video:""},
+{id:"demo4",title:"Interstellar",year:2014,category:"Movies",genre:"Sci-Fi / Drama",rating:8.7,language:"English",poster:"https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",backdrop:"",description:"Explorers travel beyond the limits of known space.",video:""},
+{id:"demo5",title:"The Mandalorian",year:2019,category:"Series",genre:"Sci-Fi / Adventure",rating:8.6,language:"English",poster:"https://image.tmdb.org/t/p/w500/eU1i6eHXlzMOlEq0ku1Rzq7Y4wA.jpg",backdrop:"",description:"A lone bounty hunter navigates a dangerous galaxy.",video:""},
+{id:"demo6",title:"Demon Slayer",year:2019,category:"Anime",genre:"Anime / Action",rating:8.6,language:"Japanese",poster:"https://image.tmdb.org/t/p/w500/xUfRZu2mi8jH6SzQEJGP6gEMu3f.jpg",backdrop:"",description:"A young swordsman seeks a cure for his sister.",video:""}
 ];
-const state = {movies:[],view:"home",search:"",language:"all",myList:loadList(),user:null,admin:false,authMode:"login"};
-const $ = id => document.getElementById(id);
-const supabaseReady = () => window.SUPABASE_PUBLISHABLE_KEY && !window.SUPABASE_PUBLISHABLE_KEY.startsWith("PASTE_") && window.tamilflixSupabase;
-function loadList(){try{return JSON.parse(localStorage.getItem("tamilflix_my_list")||"[]")}catch{return []}}
-function saveList(){localStorage.setItem("tamilflix_my_list",JSON.stringify(state.myList))}
-function esc(value=""){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function normalizeMovie(row){return {...row,languages:Array.isArray(row.languages)?row.languages:(typeof row.languages==="string"?row.languages.split(",").map(x=>x.trim()).filter(Boolean):[]),poster:row.poster_url||row.poster||"",watch_url:row.watch_url||"",download_url:row.download_url||""}}
-async function loadMovies(){
-  state.movies = demoMovies.slice();
-  if (supabaseReady()){
-    try{
-      const {data,error}=await window.tamilflixSupabase.from("movies").select("*").order("created_at",{ascending:false});
-      if(error) throw error;
-      if(data && data.length) state.movies=data.map(normalizeMovie);
-      $("statusMessage").textContent=data&&data.length?"":"Showing sample titles until you add movies.";
-    }catch(e){console.warn("Could not load Supabase movies:",e.message);$("statusMessage").textContent="Showing demo titles. Check Supabase configuration and movies table."}
-  }else{$("statusMessage").textContent="Demo mode: add your Supabase public key to enable accounts and database content."}
-  render();
-}
-function filteredMovies(){
-  return state.movies.filter(m=>{
-    const text=(m.title+" "+(m.description||"")+" "+(m.languages||[]).join(" ")).toLowerCase();
-    if(state.search && !text.includes(state.search.toLowerCase())) return false;
-    if(state.language!=="all" && !(m.languages||[]).some(l=>l.toLowerCase()===state.language.toLowerCase())) return false;
-    if(state.view==="movies" && m.type!=="movie") return false;
-    if(state.view==="series" && m.type!=="series") return false;
-    if(state.view==="my-list" && !state.myList.includes(String(m.id))) return false;
-    return true;
-  });
-}
+let titles=loadTitles();
+let heroIndex=0, heroTimer=null, authMode="login";
+const $=id=>document.getElementById(id);
+function loadTitles(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):demoTitles.slice()}catch(e){return demoTitles.slice()}}
+function saveTitles(){localStorage.setItem(STORAGE_KEY,JSON.stringify(titles))}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function getList(){try{return JSON.parse(localStorage.getItem(LIST_KEY)||"[]")}catch(e){return []}}
+function setList(list){localStorage.setItem(LIST_KEY,JSON.stringify(list))}
+function toast(message){const el=$("toast");if(!el)return;el.textContent=message;el.classList.remove("hidden");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.add("hidden"),2600)}
+function posterFallback(title){return "https://placehold.co/500x750/151927/ffffff?text="+encodeURIComponent(title||"Tamilflix")}
+function posterFor(item){return item.poster||posterFallback(item.title)}
+function card(item){return `<article class="movie-card" data-movie-id="${escapeHtml(item.id)}"><div class="poster-wrap"><img loading="lazy" src="${escapeHtml(posterFor(item))}" alt="${escapeHtml(item.title)} poster" onerror="this.onerror=null;this.src='${posterFallback(item.title)}'"><div class="card-overlay"><button type="button" data-open-movie="${escapeHtml(item.id)}" aria-label="View ${escapeHtml(item.title)}">▶</button><button type="button" data-list-movie="${escapeHtml(item.id)}" aria-label="Add ${escapeHtml(item.title)} to My List">♡</button></div></div><h3>${escapeHtml(item.title)}</h3><div class="movie-meta"><span>${escapeHtml(item.year||"—")} · ${escapeHtml(item.category||"Movies")}</span><span class="rating">★ ${escapeHtml(item.rating||"—")}</span></div></article>`}
+function renderGrid(id,items){const el=$(id);if(!el)return;el.innerHTML=items.length?items.map(card).join(""):'<div class="empty-state">No titles here yet.</div>'}
 function render(){
-  const movies=filteredMovies();
-  $("sectionTitle").textContent=({home:"Popular titles",movies:"Movies",series:"Series","my-list":"My List"})[state.view]||"Popular titles";
-  $("movieGrid").innerHTML=movies.length?movies.map(m=>`
-    <article class="movie-card">
-      <img class="poster" src="${esc(m.poster||"https://placehold.co/400x600/171b29/ffffff?text=Tamilflix")}" alt="${esc(m.title)} poster" loading="lazy" onerror="this.src='https://placehold.co/400x600/171b29/ffffff?text=Tamilflix'">
-      <div class="card-body"><h3>${esc(m.title)}</h3><div class="card-meta">${esc((m.languages||[]).join(" • ")||m.type||"Movie")}</div>
-      <div class="card-actions"><button class="btn btn-red" data-watch="${esc(m.id)}">▶ Watch</button><button class="btn btn-outline" data-download="${esc(m.id)}">↓</button></div>
-      <div class="card-actions"><button class="btn btn-outline" data-details="${esc(m.id)}">Details</button><button class="btn btn-outline" data-list="${esc(m.id)}">${state.myList.includes(String(m.id))?"♥ Saved":"♡ List"}</button></div></div>
-    </article>`).join(""):`<div class="empty-state">No titles found. Try another search or language.</div>`;
-  const featured=state.movies.find(m=>!m.is_demo)||state.movies[0];
-  if(featured){$("heroTitle").textContent=featured.title;$("heroDescription").textContent=featured.description||"Movies • Series • Entertainment";$("hero").style.backgroundImage=featured.backdrop?`linear-gradient(90deg,#090b12 0%,#090b12e8 36%,#090b1250 100%),url("${featured.backdrop}")`:"linear-gradient(90deg,#090b12 0%,#090b12e8 36%,#090b1250 100%),linear-gradient(0deg,#090b12,#20283a)";$("heroWatchBtn").dataset.watch=featured.id;$("heroDownloadBtn").dataset.download=featured.id}
-  $("year").textContent=new Date().getFullYear();
+ const search=($("searchInput")?.value||"").trim().toLowerCase();
+ const visible=titles.filter(t=>!search||[t.title,t.genre,t.category,t.language,t.year].join(" ").toLowerCase().includes(search));
+ renderGrid("trendingGrid",visible.filter(t=>t.category!=="Marvel"&&t.category!=="Anime"&&t.category!=="Series").slice(0,12));
+ renderGrid("marvelGrid",visible.filter(t=>t.category==="Marvel"));
+ renderGrid("animeGrid",visible.filter(t=>t.category==="Anime"));
+ renderGrid("seriesGrid",visible.filter(t=>t.category==="Series"));
+ const list=getList();renderGrid("myListGrid",visible.filter(t=>list.includes(String(t.id))));
+ renderHero();
+ if(window.renderAdminList)window.renderAdminList();
 }
-function showAuth(mode){
-  state.authMode=mode==="register"?"register":"login";
-  $("authHeading").textContent=state.authMode==="register"?"Create Account":"Login";
-  $("authSubmit").textContent=state.authMode==="register"?"Register":"Login";
-  $("authMessage").textContent="";
-  $("authForm").reset();
-  $("authModal").showModal();
+function renderHero(){
+ const featured=titles.filter(t=>t.poster);
+ if(!featured.length)return;
+ heroIndex=((heroIndex%featured.length)+featured.length)%featured.length;
+ const item=featured[heroIndex];
+ if($("heroTitle"))$("heroTitle").innerHTML=escapeHtml(item.title).replace(/&lt;br&gt;/g,"<br>");
+ if($("heroDescription"))$("heroDescription").textContent=[item.year,item.genre,item.language].filter(Boolean).join(" • ")||"Movies • Series • Entertainment";
+ if($("heroPoster"))$("heroPoster").src=item.poster||posterFallback(item.title);
+ const hero=document.querySelector(".hero");
+ if(hero&&item.backdrop)hero.style.backgroundImage=`linear-gradient(90deg,rgba(17,20,33,.97),rgba(17,20,33,.78)),url("${item.backdrop}")`;
+ const dots=$("carouselDots");if(dots)dots.innerHTML=featured.slice(0,8).map((_,i)=>`<button class="${i===heroIndex?"active":""}" data-hero-index="${i}" aria-label="Show featured title ${i+1}"></button>`).join("");
 }
-async function handleAuthSubmit(event){
-  event.preventDefault();
-  const msg=$("authMessage");msg.textContent="";
-  if(!supabaseReady()){msg.textContent="Add the Supabase publishable/anon key in supabase-config.js first.";return}
-  const email=$("authEmail").value.trim(),password=$("authPassword").value;
-  const result=state.authMode==="register"
-    ? await window.tamilflixSupabase.auth.signUp({email,password})
-    : await window.tamilflixSupabase.auth.signInWithPassword({email,password});
-  if(result.error){msg.textContent=result.error.message;return}
-  if(state.authMode==="register" && !result.data.session){msg.textContent="Account created. Check your email to confirm, then log in.";return}
-  state.user=result.data.user||null;
-  msg.textContent=state.user?"Signed in successfully.":"Check your email to continue.";
-  await updateAccountUI();
-  setTimeout(()=>$("authModal").close(),700);
-}
-async function updateAccountUI(){
-  if(supabaseReady()){
-    const {data}=await window.tamilflixSupabase.auth.getUser();state.user=data?.user||null;
-    state.admin=false;
-    if(state.user){
-      try{const {data:admin}=await window.tamilflixSupabase.rpc("is_admin");state.admin=admin===true}catch(e){console.warn("Admin check:",e.message)}
-    }
-  }
-  $("loginBtn").classList.toggle("hidden",!!state.user);
-  $("registerBtn").classList.toggle("hidden",!!state.user);
-  $("logoutBtn").classList.toggle("hidden",!state.user);
-  $("adminSection").classList.toggle("hidden",!state.admin);
-}
-async function logout(){
-  if(supabaseReady()) await window.tamilflixSupabase.auth.signOut();
-  state.user=null;state.admin=false;await updateAccountUI();
-}
-function findMovie(id){return state.movies.find(m=>String(m.id)===String(id))}
-function showDetails(id){
-  const m=findMovie(id);if(!m)return;
-  $("detailsContent").innerHTML=`<h2>${esc(m.title)}</h2><img class="details-poster" src="${esc(m.poster||"https://placehold.co/400x600/171b29/ffffff?text=Tamilflix")}" alt=""><p>${esc(m.description||"No description available.")}</p><p class="muted">Languages: ${esc((m.languages||[]).join(", ")||"Not specified")}</p><p class="muted">Quality: ${esc(m.quality||"Available quality depends on the supplied link.")}</p><div class="details-actions"><button class="btn btn-red" data-watch="${esc(m.id)}">▶ Watch now</button><button class="btn btn-outline" data-download="${esc(m.id)}">↓ Download</button><button class="btn btn-outline" data-list="${esc(m.id)}">♡ My List</button></div>`;
-  $("detailsModal").showModal();
-}
-function toggleList(id){
-  id=String(id);state.myList=state.myList.includes(id)?state.myList.filter(x=>x!==id):[...state.myList,id];saveList();render();
-}
-window.tamilflixGetMovie = findMovie;
-window.tamilflixReloadMovies = loadMovies;
-window.tamilflixIsAdmin = () => state.admin;
-
-function init(){
-  document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>{state.view=b.dataset.view;document.querySelectorAll("[data-view]").forEach(x=>x.classList.toggle("active",x===b));render();document.querySelector(".content-section").scrollIntoView({behavior:"smooth"})}));
-  $("loginBtn").addEventListener("click",()=>showAuth("login"));
-  $("registerBtn").addEventListener("click",()=>showAuth("register"));
-  $("logoutBtn").addEventListener("click",logout);
-  $("authForm").addEventListener("submit",handleAuthSubmit);
-  $("searchInput").addEventListener("input",e=>{state.search=e.target.value;render()});
-  $("languageFilter").addEventListener("change",e=>{state.language=e.target.value;render()});
-  document.addEventListener("click",e=>{
-    const close=e.target.closest("[data-close]");if(close){$(close.dataset.close).close();return}
-    const watch=e.target.closest("[data-watch]");if(watch){e.preventDefault();window.tamilflixWatch?.(watch.dataset.watch);return}
-    const download=e.target.closest("[data-download]");if(download){e.preventDefault();window.tamilflixDownload?.(download.dataset.download);return}
-    const details=e.target.closest("[data-details]");if(details){showDetails(details.dataset.details);return}
-    const list=e.target.closest("[data-list]");if(list){toggleList(list.dataset.list)}
-  });
-  $("heroWatchBtn").addEventListener("click",()=>window.tamilflixWatch?.($("heroWatchBtn").dataset.watch));
-  $("heroDownloadBtn").addEventListener("click",()=>window.tamilflixDownload?.($("heroDownloadBtn").dataset.download));
-  document.querySelectorAll("dialog").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.close()}));
-  if(supabaseReady()) window.tamilflixSupabase.auth.onAuthStateChange(()=>updateAccountUI());
-  updateAccountUI();loadMovies();
-}
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+function startCarousel(){clearInterval(heroTimer);heroTimer=setInterval(()=>{heroIndex++;renderHero()},5000)}
+function openMovie(id){const item=titles.find(t=>String(t.id)===String(id));if(!item)return;
+ $("movieDetails").innerHTML=`<div class="movie-detail-layout"><img src="${escapeHtml(posterFor(item))}" alt="${escapeHtml(item.title)} poster" onerror="this.onerror=null;this.src='${posterFallback(item.title)}'"><div><span class="movie-badge">${escapeHtml(item.category||"Movie")}</span><h2>${escapeHtml(item.title)}</h2><p class="movie-meta">${escapeHtml(item.year||"")} &nbsp; ★ ${escapeHtml(item.rating||"—")} &nbsp; ${escapeHtml(item.language||"")}</p><p>${escapeHtml(item.description||"No description available.")}</p><div class="detail-actions"><button class="btn btn-primary" data-play-movie="${escapeHtml(item.id)}">▶ Play</button><button class="btn btn-ghost" data-list-movie="${escapeHtml(item.id)}">♡ My List</button><button class="btn btn-ghost" data-download-movie="${escapeHtml(item.id)}">⬇ Download</button></div><p class="muted">Play/download works only when a valid URL is provided and you have permission to use the content.</p></div></div>`;
+ $("movieModal").classList.remove("hidden")}
+function toggleList(id){id=String(id);let list=getList();if(list.includes(id)){list=list.filter(x=>x!==id);toast("Removed from My List")}else{list.push(id);toast("Added to My List")}setList(list);render()}
+function showAuth(mode){authMode=mode;$("authTitle").textContent=mode==="login"?"Login to Tamilflix":"Create your Tamilflix account";$("authSubmit").textContent=mode==="login"?"Login":"Register";$("authSwitchText").textContent=mode==="login"?"New to Tamilflix?":"Already have an account?";$("authSwitch").textContent=mode==="login"?"Create account":"Login";$("authMessage").textContent="";$("authModal").classList.remove("hidden")}
+async function submitAuth(e){e.preventDefault();const email=$("authEmail").value,password=$("authPassword").value;const sb=window.supabaseClient||window.supabase;
+ try{if(sb?.auth){const result=authMode==="login"?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});if(result.error)throw result.error;$("authMessage").textContent=authMode==="login"?"Login successful.":"Check your email if confirmation is enabled.";toast("Authentication request complete")}else{$("authMessage").textContent="Supabase client is not configured. Add your existing project client in supabase-config.js.";}}
+ catch(err){$("authMessage").textContent=err.message||"Authentication failed."}}
+document.addEventListener("click",e=>{
+ const close=e.target.closest("[data-close]");if(close){$(close.dataset.close)?.classList.add("hidden");return}
+ const open=e.target.closest("[data-open-movie]");if(open){openMovie(open.dataset.openMovie);return}
+ const add=e.target.closest("[data-list-movie]");if(add){toggleList(add.dataset.listMovie);return}
+ const play=e.target.closest("[data-play-movie]");if(play){const item=titles.find(t=>String(t.id)===play.dataset.playMovie);if(item?.video){window.open(item.video,"_blank","noopener");}else toast("No authorised video URL has been added.");return}
+ const dl=e.target.closest("[data-download-movie]");if(dl){window.TamilflixDownload?.(dl.dataset.downloadMovie);return}
+ const dot=e.target.closest("[data-hero-index]");if(dot){heroIndex=Number(dot.dataset.heroIndex);renderHero();startCarousel();return}
+ const all=e.target.closest("[data-show-all]");if(all){const category=all.dataset.showAll;const matching=category==="all"?titles:titles.filter(t=>t.category===category);toast(`${matching.length} title(s) in ${category}`);return}
+});
+$("searchForm")?.addEventListener("submit",e=>{e.preventDefault();render();document.querySelector("#movies")?.scrollIntoView({behavior:"smooth"})});
+$("searchInput")?.addEventListener("input",render);
+$("prevSlide")?.addEventListener("click",()=>{heroIndex--;renderHero();startCarousel()});
+$("nextSlide")?.addEventListener("click",()=>{heroIndex++;renderHero();startCarousel()});
+$("heroExplore")?.addEventListener("click",()=>$("movies").scrollIntoView({behavior:"smooth"}));
+$("heroInfo")?.addEventListener("click",()=>openMovie(titles[heroIndex%titles.length]?.id));
+$("loginBtn")?.addEventListener("click",()=>showAuth("login"));
+$("registerBtn")?.addEventListener("click",()=>showAuth("register"));
+$("authSwitch")?.addEventListener("click",()=>showAuth(authMode==="login"?"register":"login"));
+$("authForm")?.addEventListener("submit",submitAuth);
+$("menuToggle")?.addEventListener("click",()=>$("mainNav").classList.toggle("open"));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"))});
+window.TamilflixApp={get titles(){return titles},setTitles(next){titles=next;saveTitles();render()},saveTitles,render,toast,openMovie};
+render();startCarousel();
+})();

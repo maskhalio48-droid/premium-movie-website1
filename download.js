@@ -1,28 +1,17 @@
-/* Playback/download helpers for links the site owner is authorized to share. */
-(function () {
-  'use strict';
-  function findMovie(id) { return window.tamilflixGetMovie ? window.tamilflixGetMovie(id) : null; }
-  window.tamilflixWatch = function (id) {
-    const movie = findMovie(id);
-    if (!movie) return alert('Movie details are not available yet.');
-    const url = movie.watch_url || movie.watchUrl || '';
-    if (!url) return alert('No authorized watch link has been added for this title yet.');
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-  window.tamilflixDownload = function (id) {
-    const movie = findMovie(id);
-    if (!movie) return alert('Movie details are not available yet.');
-    const url = movie.download_url || movie.downloadUrl || '';
-    if (!url) return alert('No authorized direct-download file has been added for this title yet.');
-    const quality = movie.quality ? '\nAvailable quality: ' + movie.quality : '';
-    if (!confirm('Open the authorized download link for ' + movie.title + '?' + quality)) return;
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.target = '_blank';
-    anchor.rel = 'noopener noreferrer';
-    anchor.download = '';
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-  };
+/* Download button supports only direct, authorised file URLs. It cannot bypass streaming restrictions. */
+(function(){
+"use strict";
+function toast(message){window.TamilflixApp?.toast(message)}
+window.TamilflixDownload=function(id){
+ const item=window.TamilflixApp?.titles.find(x=>String(x.id)===String(id));
+ if(!item){toast("Title not found.");return}
+ if(!item.video){toast("No direct video URL has been added.");return}
+ try{
+   const url=new URL(item.video,window.location.href);
+   if(!["http:","https:"].includes(url.protocol)){toast("Unsupported video URL.");return}
+   const link=document.createElement("a");link.href=url.href;link.download=(item.title||"tamilflix-video").replace(/[^\w-]+/g,"_");
+   link.target="_blank";link.rel="noopener";document.body.appendChild(link);link.click();link.remove();
+   toast("Opened the provided video link. Download availability depends on the host.");
+ }catch(e){toast("Please check the video URL.")}
+};
 })();
