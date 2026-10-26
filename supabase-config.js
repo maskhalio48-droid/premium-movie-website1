@@ -1,22 +1,34 @@
-/* Tamilflix Supabase public client configuration.
-   The publishable/anon key is intended for browser use. Never put service_role keys here. */
+/* Tamilflix Supabase Configuration */
+
+window.SUPABASE_URL = "https://ciixfxvzlqcbmfdhbqbx.supabase.co";
+
+// உங்கள் தற்போதைய Supabase publishable key-ஐ இங்கே இடுங்கள்
+window.SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EEibbzI3PHIVGv8inmFsIg_QiIPmnjB";
+
 (function () {
   "use strict";
+
   const url = window.SUPABASE_URL;
   const key = window.SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) {
+
+  if (
+    !url ||
+    !key ||
+    key === "sb_publishable_EEibbzI3PHIVGv8inmFsIg_QiIPmnjB"
+  ) {
     console.error("Tamilflix: Supabase URL or publishable key is missing.");
     return;
   }
-  // The Supabase CDN exposes its library as window.supabase. Keep the client
-  // in a separate variable to avoid overwriting the library namespace.
-  if (!window.supabase || typeof window.supabase.createClient !== "function") {
-    console.error("Tamilflix: Supabase JS library did not load. Check your internet connection.");
+
+  if (
+    !window.supabase ||
+    typeof window.supabase.createClient !== "function"
+  ) {
+    console.error("Tamilflix: Supabase library did not load.");
     return;
   }
-  try {
-    window.supabaseClient = window.supabase.createClient(url, key);
-  } catch (error) {
-    console.error("Tamilflix: Could not initialize Supabase client.", error);
-  }
+
+  window.supabaseClient = window.supabase.createClient(url, key);
+
+  console.log("Tamilflix: Supabase connected successfully.");
 })();
