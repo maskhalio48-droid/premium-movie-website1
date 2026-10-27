@@ -19,13 +19,77 @@ window.TamilflixDownload=function(id,language){
   toast("Download requested. The video host may control whether direct download is allowed.");
  }catch(e){toast("Please check the video URL.")}
 };
-window.TamilflixPlayer={open:function(item){
- const modal=document.getElementById("playerModal"),video=document.getElementById("moviePlayer"),title=document.getElementById("playerTitle");
- if(!modal||!video){toast("Player is unavailable.");return}
- try{video.pause();video.removeAttribute("src");video.load();video.src=item.video;title.textContent=item.title||"Now Playing";modal.classList.remove("hidden");
-  const p=video.play();if(p&&p.catch)p.catch(()=>toast("Press Play in the video controls to start playback."));
- }catch(e){toast("This video URL could not be opened.")}
-}};
+window.TamilflixPlayer = {
+    open: function (item) {
+        const modal = document.getElementById("playerModal");
+        const stage = document.getElementById("playerStage");
+        const title = document.getElementById("playerTitle");
+        const video = document.getElementById("moviePlayer");
+
+        if (!modal || !stage || !video) {
+            toast("Player is unavailable.");
+            return;
+        }
+
+        const videoUrl = item.video || "";
+        let youtubeId = null;
+
+        try {
+            const url = new URL(videoUrl);
+
+            if (url.hostname === "youtu.be") {
+                youtubeId = url.pathname.slice(1).split("/")[0];
+            } else if (
+                url.hostname === "youtube.com" ||
+                url.hostname === "www.youtube.com" ||
+                url.hostname === "m.youtube.com"
+            ) {
+                if (url.pathname === "/watch") {
+                    youtubeId = url.searchParams.get("v");
+                } else if (url.pathname.startsWith("/embed/")) {
+                    youtubeId = url.pathname.split("/")[2];
+                } else if (url.pathname.startsWith("/shorts/")) {
+                    youtubeId = url.pathname.split("/")[2];
+                }
+            }
+        } catch (error) {
+            // The URL may be a relative or invalid URL.
+        }
+
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+
+        stage.querySelector("iframe")?.remove();
+
+        if (youtubeId && /^[a-zA-Z0-9_-]{11}$/.test(youtubeId)) {
+            const iframe = document.createElement("iframe");
+            iframe.src =
+                "https://www.youtube-nocookie.com/embed/" +
+                youtubeId +
+                "?autoplay=0&playsinline=1";
+
+            iframe.title = item.title || "YouTube video";
+            iframe.allow =
+                "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+            iframe.allowFullscreen = true;
+            iframe.referrerPolicy = "strict-origin-when-cross-origin";
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.border = "0";
+
+            video.style.display = "none";
+            stage.appendChild(iframe);
+        } else {
+            video.style.display = "block";
+            video.src = videoUrl;
+            video.load();
+        }
+
+        title.textContent = item.title || "Now Playing";
+        modal.classList.remove("hidden");
+    }
+};
 const modal=document.getElementById("playerModal"),video=document.getElementById("moviePlayer");
 function closePlayer(){if(video){video.pause();video.removeAttribute("src");video.load()}if(modal)modal.classList.add("hidden");if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{})}
 document.getElementById("playerClose")?.addEventListener("click",closePlayer);
