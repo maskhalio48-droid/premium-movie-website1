@@ -12,11 +12,67 @@ const demoTitles=[
 {id:"demo5",title:"The Mandalorian",year:2019,category:"Series",genre:"Sci-Fi / Adventure",rating:8.6,language:"English",poster:"https://image.tmdb.org/t/p/w500/eU1i6eHXlzMOlEq0ku1Rzq7Y4wA.jpg",backdrop:"",description:"A lone bounty hunter navigates a dangerous galaxy.",video:""},
 {id:"demo6",title:"Demon Slayer",year:2019,category:"Anime",genre:"Anime / Action",rating:8.6,language:"Japanese",poster:"https://image.tmdb.org/t/p/w500/xUfRZu2mi8jH6SzQEJGP6gEMu3f.jpg",backdrop:"",description:"A young swordsman seeks a cure for his sister.",video:""}
 ];
-let titles=loadTitles();
-let heroIndex=0, heroTimer=null, authMode="login";
-const $=id=>document.getElementById(id);
-function loadTitles(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):demoTitles.slice()}catch(e){return demoTitles.slice()}}
-function saveTitles(){localStorage.setItem(STORAGE_KEY,JSON.stringify(titles))}
+let titles = loadTitles();
+let heroIndex = 0, heroTimer = null, authMode = "login";
+const $ = id => document.getElementById(id);
+
+function loadTitles() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : demoTitles.slice();
+    } catch (e) {
+        return demoTitles.slice();
+    }
+}
+
+function saveTitles() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(titles));
+}
+
+function mapDatabaseMovie(row) {
+    return {
+        id: row.id,
+        title: row.title || "",
+        year: row.year || "",
+        category: row.category || "Movies",
+        genre: row.genre || "",
+        rating: row.rating || "",
+        language: row.language || "Tamil",
+        poster: row.poster_url || row.poster || "",
+        backdrop: row.backdrop_url || row.backdrop || "",
+        description: row.description || "",
+        video: row.video_url || row.video || "",
+        languageVideos: row.language_videos || {},
+        is_active: row.is_active
+    };
+}
+
+async function loadMoviesFromDatabase() {
+    const sb = window.supabaseClient;
+
+    if (!sb) {
+        console.error("Tamilflix: Supabase client unavailable.");
+        return;
+    }
+
+    const { data, error } = await sb
+        .from(MOVIES_TABLE)
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error("Could not load movies from Supabase:", error.message);
+        toast("Movies could not be loaded. Please check Supabase.");
+        return;
+    }
+
+    titles = (data || []).map(mapDatabaseMovie);
+    saveTitles();
+    render();
+
+    console.log("Tamilflix: Loaded movies from Supabase:", titles.length);
+}
 function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function getList(){try{return JSON.parse(localStorage.getItem(LIST_KEY)||"[]")}catch(e){return []}}
 function setList(list){localStorage.setItem(LIST_KEY,JSON.stringify(list))}
