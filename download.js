@@ -36,7 +36,7 @@ window.TamilflixPlayer = {
 
         try {
             const url = new URL(videoUrl);
-
+console.log("Tamilflix video URL:", videoUrl);
             if (url.hostname === "youtu.be") {
                 youtubeId = url.pathname.slice(1).split("/")[0];
             } else if (
