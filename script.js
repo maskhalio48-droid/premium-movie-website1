@@ -101,6 +101,8 @@ function updateAuthUI(user) {
     const userEmail = $("userEmail");
     const adminButton = $("openAdminBtn");
 
+    const ADMIN_EMAIL = "jayantatilan@gmail.com";
+
     // Login / Register buttons
     if (user) {
         authButtons?.classList.add("hidden");
@@ -112,14 +114,16 @@ function updateAuthUI(user) {
     } else {
         authButtons?.classList.remove("hidden");
         userAccount?.classList.add("hidden");
+
+        if (userEmail) {
+            userEmail.textContent = "";
+        }
     }
 
-    // Admin button: only for the specified email
-    const ADMIN_EMAIL = "jayantatilan@gmail.com";
-
+    // Show Admin button only for the specified email
     const isAdmin =
-        !!user &&
-        user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+        Boolean(user?.email) &&
+        user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
     adminButton?.classList.toggle("hidden", !isAdmin);
 }
