@@ -10,6 +10,7 @@ function setTitles(list){app()?.setTitles(list)}
 function clearForm(){["editId","movieTitle","movieYear","movieGenre","movieRating","movieLanguage","moviePoster","movieBackdrop","movieDescription","movieVideo","videoTamil","videoSinhala","videoEnglish","videoHindi","videoTelugu"].forEach(id=>{if($(id))$(id).value=""});$("movieCategory").value="Movies";msg("");$("posterPreview")?.classList.add("hidden")}
 function renderAdminList(){
  const box=$("adminMovieList");if(!box)return;const list=getTitles();
+ console.log("Tamilflix admin titles:", list);
  box.innerHTML=list.length?list.map(m=>`<div class="admin-movie-item"><img src="${m.poster||"https://placehold.co/100x150?text=Poster"}" alt="" onerror="this.src='https://placehold.co/100x150?text=Poster'"><div class="admin-title"><strong>${esc(m.title)}</strong><small>${esc(m.year||"")} · ${esc(m.category||"Movies")}</small></div><button type="button" data-edit-title="${esc(m.id)}">Edit</button><button type="button" data-delete-title="${esc(m.id)}">Delete</button></div>`).join(""):'<p class="muted">No titles saved.</p>';
 }
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
