@@ -4,7 +4,28 @@
 const $=id=>document.getElementById(id);
 const app=()=>window.TamilflixApp;
 function msg(text,isError=false){const el=$("adminMessage");if(el){el.textContent=text;el.style.color=isError?"#ff8aa1":"#8ce0ad"}}
-function openAdmin(){if(!$("adminModal"))return;$("adminModal").classList.remove("hidden");renderAdminList()}
+function openAdmin() {
+    const modal = $("adminModal");
+
+    if (!modal) {
+        alert("Tamilflix error: Admin Panel not found.");
+        return;
+    }
+
+    modal.classList.remove("hidden");
+
+    // Wait briefly for the panel to become visible
+    setTimeout(() => {
+        renderAdminList();
+
+        const box = $("adminMovieList");
+
+        if (box && !box.innerHTML.trim()) {
+            box.innerHTML =
+                '<p class="muted">The movie list did not render. Please check script.js.</p>';
+        }
+    }, 100);
+}
 function getTitles(){return app()?.titles||[]}
 function setTitles(list){app()?.setTitles(list)}
 function clearForm(){["editId","movieTitle","movieYear","movieGenre","movieRating","movieLanguage","moviePoster","movieBackdrop","movieDescription","movieVideo","videoTamil","videoSinhala","videoEnglish","videoHindi","videoTelugu"].forEach(id=>{if($(id))$(id).value=""});$("movieCategory").value="Movies";msg("");$("posterPreview")?.classList.add("hidden")}
