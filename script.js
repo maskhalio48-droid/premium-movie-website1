@@ -94,7 +94,7 @@ async function submitAuth(e) {
             err.message || "Authentication failed.";
     }
 }
- // Update the header when login state changes
+// Update the header when login state changes
 function updateAuthUI(user) {
     const authButtons = $("authButtons");
     const userAccount = $("userAccount");
@@ -103,7 +103,7 @@ function updateAuthUI(user) {
 
     const ADMIN_EMAIL = "jayantatilan@gmail.com";
 
-    // Login / Register buttons
+    // Show My Account after successful login
     if (user) {
         authButtons?.classList.add("hidden");
         userAccount?.classList.remove("hidden");
@@ -112,6 +112,7 @@ function updateAuthUI(user) {
             userEmail.textContent = user.email || "My Account";
         }
     } else {
+        // Show Login and Register after logout
         authButtons?.classList.remove("hidden");
         userAccount?.classList.add("hidden");
 
@@ -120,7 +121,7 @@ function updateAuthUI(user) {
         }
     }
 
-    // Show Admin button only for the specified email
+    // Show Admin button only for the configured admin email
     const isAdmin =
         Boolean(user?.email) &&
         user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
