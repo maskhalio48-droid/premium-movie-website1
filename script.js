@@ -63,6 +63,69 @@ function showAuth(mode){authMode=mode;$("authTitle").textContent=mode==="login"?
 async function submitAuth(e){e.preventDefault();const email=$("authEmail").value,password=$("authPassword").value;const sb=window.supabaseClient||window.supabase;
  try{if(sb?.auth){const result=authMode==="login"?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});if(result.error)throw result.error;$("authMessage").textContent=authMode==="login"?"Login successful.":"Check your email if confirmation is enabled.";toast("Authentication request complete")}else{$("authMessage").textContent="Supabase client is not configured. Add your existing project client in supabase-config.js.";}}
  catch(err){$("authMessage").textContent=err.message||"Authentication failed."}}
+ // Update the header when login state changes
+function updateAuthUI(user) {
+    const authButtons = $("authButtons");
+    const userAccount = $("userAccount");
+    const userEmail = $("userEmail");
+
+    if (user) {
+        authButtons?.classList.add("hidden");
+        userAccount?.classList.remove("hidden");
+
+        if (userEmail) {
+            userEmail.textContent = user.email || "My Account";
+        }
+    } else {
+        authButtons?.classList.remove("hidden");
+        userAccount?.classList.add("hidden");
+    }
+}
+
+// Restore the login state after refreshing the page
+async function initialiseAuth() {
+    const sb = window.supabaseClient;
+
+    if (!sb?.auth) {
+        console.error("Tamilflix: Supabase Auth is unavailable.");
+        return;
+    }
+
+    const { data, error } = await sb.auth.getSession();
+
+    if (error) {
+        console.error("Unable to restore session:", error.message);
+        return;
+    }
+
+    updateAuthUI(data.session?.user || null);
+
+    sb.auth.onAuthStateChange((_event, session) => {
+        updateAuthUI(session?.user || null);
+    });
+}
+
+// Logout
+$("logoutBtn")?.addEventListener("click", async () => {
+    const sb = window.supabaseClient;
+
+    if (!sb?.auth) {
+        toast("Supabase Auth is unavailable.");
+        return;
+    }
+
+    const { error } = await sb.auth.signOut();
+
+    if (error) {
+        toast(error.message || "Logout failed.");
+        return;
+    }
+
+    updateAuthUI(null);
+    toast("Logged out successfully.");
+});
+
+initialiseAuth();
 document.addEventListener("click",e=>{
  const close=e.target.closest("[data-close]");if(close){$(close.dataset.close)?.classList.add("hidden");return}
  const open=e.target.closest("[data-open-movie]");if(open){openMovie(open.dataset.openMovie);return}
