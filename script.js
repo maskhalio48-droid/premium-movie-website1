@@ -99,7 +99,9 @@ function updateAuthUI(user) {
     const authButtons = $("authButtons");
     const userAccount = $("userAccount");
     const userEmail = $("userEmail");
+    const adminButton = $("openAdminBtn");
 
+    // Login / Register buttons
     if (user) {
         authButtons?.classList.add("hidden");
         userAccount?.classList.remove("hidden");
@@ -111,9 +113,16 @@ function updateAuthUI(user) {
         authButtons?.classList.remove("hidden");
         userAccount?.classList.add("hidden");
     }
-}
 
-// Restore the login state after refreshing the page
+    // Admin button: only for the specified email
+    const ADMIN_EMAIL = "YOUR_ADMIN_EMAIL@example.com";
+
+    const isAdmin =
+        !!user &&
+        user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+    adminButton?.classList.toggle("hidden", !isAdmin);
+}
 async function initialiseAuth() {
     const sb = window.supabaseClient;
 
