@@ -2,7 +2,8 @@
 (function(){
 "use strict";
 const STORAGE_KEY="tamilflix_titles";
-const LIST_KEY="tamilflix_my_list";
+const MOVIES_TABLE = "movies";
+ const LIST_KEY="tamilflix_my_list";
 const demoTitles=[
 {id:"demo1",title:"Spider-Man: No Way Home",year:2021,category:"Marvel",genre:"Action / Adventure",rating:8.2,language:"English",poster:"https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg",backdrop:"https://image.tmdb.org/t/p/w1280/14QbnygCuTO0vl7CAFmPf1fgZfV.jpg",description:"A young hero faces a world-changing challenge.",video:""},
 {id:"demo2",title:"Avengers: Endgame",year:2019,category:"Marvel",genre:"Action / Sci-Fi",rating:8.4,language:"English",poster:"https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",backdrop:"https://image.tmdb.org/t/p/w1280/7RyHsO4ySX3R2w0II0L1lI1M4x8.jpg",description:"The heroes unite for a final battle.",video:""},
