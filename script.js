@@ -289,5 +289,7 @@ window.TamilflixApp = {
     openMovie
 };
  window.TamilflixApp={get titles(){return titles},setTitles(next){titles=next;saveTitles();render()},saveTitles,render,toast,openMovie};
-render();startCarousel();
+render();
+startCarousel();
+loadMoviesFromDatabase();
 })();
