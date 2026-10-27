@@ -9,14 +9,10 @@ window.SUPABASE_PUBLISHABLE_KEY = "sb_publishable_EEibbzI3PHIVGv8inmFsIg_QiIPmnj
   const url = window.SUPABASE_URL;
   const key = window.SUPABASE_PUBLISHABLE_KEY;
 
-  if (
-    !url ||
-    !key ||
-    key === "sb_publishable_EEibbzI3PHIVGv8inmFsIg_QiIPmnjB"
-  ) {
-    console.error("Tamilflix: Supabase URL or publishable key is missing.");
-    return;
-  }
+  if (!url || !key) {
+  console.error("Tamilflix: Supabase URL or publishable key is missing.");
+  return;
+}
 
   if (
     !window.supabase ||
