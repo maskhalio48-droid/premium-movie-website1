@@ -175,7 +175,10 @@ $("heroExplore")?.addEventListener("click",()=>$("movies").scrollIntoView({behav
 $("heroInfo")?.addEventListener("click",()=>openMovie(titles[heroIndex%titles.length]?.id));
 $("loginBtn")?.addEventListener("click",()=>showAuth("login"));
 $("registerBtn")?.addEventListener("click",()=>showAuth("register"));
-$("authSwitch")?.addEventListener("click",()=>showAuth(authMode==="login"?"register":"login"));
+$("openAdminBtn")?.addEventListener("click", () => {
+    $("adminModal")?.classList.remove("hidden");
+});
+ $("authSwitch")?.addEventListener("click",()=>showAuth(authMode==="login"?"register":"login"));
 $("authForm")?.addEventListener("submit",submitAuth);
 $("menuToggle")?.addEventListener("click",()=>$("mainNav").classList.toggle("open"));
 document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"))});
