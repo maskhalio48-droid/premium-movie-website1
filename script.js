@@ -170,6 +170,22 @@ $("logoutBtn")?.addEventListener("click", async () => {
 });
 
 initialiseAuth();
+ // Admin panel button
+const adminButton = $("openAdminBtn");
+const adminModal = $("adminModal");
+
+if (adminButton && adminModal) {
+    adminButton.addEventListener("click", () => {
+        const userEmail = $("userEmail")?.textContent?.trim().toLowerCase();
+
+        if (userEmail !== "jayantatilan@gmail.com") {
+            toast("Admin access denied.");
+            return;
+        }
+
+        adminModal.classList.remove("hidden");
+    });
+}
 document.addEventListener("click",e=>{
  const close=e.target.closest("[data-close]");if(close){$(close.dataset.close)?.classList.add("hidden");return}
  const open=e.target.closest("[data-open-movie]");if(open){openMovie(open.dataset.openMovie);return}
