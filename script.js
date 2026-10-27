@@ -60,9 +60,40 @@ function openMovie(id){const item=titles.find(t=>String(t.id)===String(id));if(!
  $("movieModal").classList.remove("hidden")}
 function toggleList(id){id=String(id);let list=getList();if(list.includes(id)){list=list.filter(x=>x!==id);toast("Removed from My List")}else{list.push(id);toast("Added to My List")}setList(list);render()}
 function showAuth(mode){authMode=mode;$("authTitle").textContent=mode==="login"?"Login to Tamilflix":"Create your Tamilflix account";$("authSubmit").textContent=mode==="login"?"Login":"Register";$("authSwitchText").textContent=mode==="login"?"New to Tamilflix?":"Already have an account?";$("authSwitch").textContent=mode==="login"?"Create account":"Login";$("authMessage").textContent="";$("authModal").classList.remove("hidden")}
-async function submitAuth(e){e.preventDefault();const email=$("authEmail").value,password=$("authPassword").value;const sb=window.supabaseClient||window.supabase;
- try{if(sb?.auth){const result=authMode==="login"?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password});if(result.error)throw result.error;$("authMessage").textContent=authMode==="login"?"Login successful.":"Check your email if confirmation is enabled.";toast("Authentication request complete")}else{$("authMessage").textContent="Supabase client is not configured. Add your existing project client in supabase-config.js.";}}
- catch(err){$("authMessage").textContent=err.message||"Authentication failed."}}
+async function submitAuth(e) {
+    e.preventDefault();
+
+    const email = $("authEmail").value;
+    const password = $("authPassword").value;
+    const sb = window.supabaseClient;
+
+    try {
+        if (!sb?.auth) {
+            throw new Error("Supabase Auth is unavailable.");
+        }
+
+        const result = authMode === "login"
+            ? await sb.auth.signInWithPassword({ email, password })
+            : await sb.auth.signUp({ email, password });
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        if (authMode === "login" && result.data?.user) {
+            updateAuthUI(result.data.user);
+            $("authModal").classList.add("hidden");
+            toast("Login successful!");
+        } else {
+            $("authMessage").textContent =
+                "Check your email if confirmation is enabled.";
+        }
+
+    } catch (err) {
+        $("authMessage").textContent =
+            err.message || "Authentication failed.";
+    }
+}
  // Update the header when login state changes
 function updateAuthUI(user) {
     const authButtons = $("authButtons");
