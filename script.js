@@ -171,20 +171,26 @@ $("logoutBtn")?.addEventListener("click", async () => {
 });
 
 initialiseAuth();
- // Admin panel button
+// Admin panel button
 const adminButton = $("openAdminBtn");
-const adminModal = $("adminModal");
 
-if (adminButton && adminModal) {
+if (adminButton) {
     adminButton.addEventListener("click", () => {
-        const userEmail = $("userEmail")?.textContent?.trim().toLowerCase();
+        const userEmail = $("userEmail")
+            ?.textContent
+            ?.trim()
+            .toLowerCase();
 
         if (userEmail !== "jayantatilan@gmail.com") {
             toast("Admin access denied.");
             return;
         }
 
-        adminModal.classList.remove("hidden");
+        if (window.TamilflixAdmin?.open) {
+            window.TamilflixAdmin.open();
+        } else {
+            toast("Admin panel is loading. Please refresh.");
+        }
     });
 }
 document.addEventListener("click",e=>{
