@@ -212,6 +212,7 @@ $("registerBtn")?.addEventListener("click",()=>showAuth("register"));
 $("authForm")?.addEventListener("submit",submitAuth);
 $("menuToggle")?.addEventListener("click",()=>$("mainNav").classList.toggle("open"));
 document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal").forEach(m=>m.classList.add("hidden"))});
-window.TamilflixApp={get titles(){return titles},setTitles(next){titles=next;saveTitles();render()},saveTitles,render,toast,openMovie};
+console.log("TamilflixApp initialized", titles.length, titles);
+ window.TamilflixApp={get titles(){return titles},setTitles(next){titles=next;saveTitles();render()},saveTitles,render,toast,openMovie};
 render();startCarousel();
 })();
