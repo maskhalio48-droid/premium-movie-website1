@@ -178,6 +178,9 @@ $("registerBtn")?.addEventListener("click",()=>showAuth("register"));
 $("openAdminBtn")?.addEventListener("click", () => {
     $("adminModal")?.classList.remove("hidden");
 });
+ $("openAdminBtn")?.addEventListener("click", () => {
+    $("adminModal")?.classList.remove("hidden");
+});
  $("authSwitch")?.addEventListener("click",()=>showAuth(authMode==="login"?"register":"login"));
 $("authForm")?.addEventListener("submit",submitAuth);
 $("menuToggle")?.addEventListener("click",()=>$("mainNav").classList.toggle("open"));
