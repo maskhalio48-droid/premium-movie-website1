@@ -115,7 +115,7 @@ function updateAuthUI(user) {
     }
 
     // Admin button: only for the specified email
-    const ADMIN_EMAIL = "YOUR_ADMIN_EMAIL@example.com";
+    const ADMIN_EMAIL = "jayantatilan@gmail.com";
 
     const isAdmin =
         !!user &&
