@@ -8,10 +8,57 @@ function openAdmin(){if(!$("adminModal"))return;$("adminModal").classList.remove
 function getTitles(){return app()?.titles||[]}
 function setTitles(list){app()?.setTitles(list)}
 function clearForm(){["editId","movieTitle","movieYear","movieGenre","movieRating","movieLanguage","moviePoster","movieBackdrop","movieDescription","movieVideo","videoTamil","videoSinhala","videoEnglish","videoHindi","videoTelugu"].forEach(id=>{if($(id))$(id).value=""});$("movieCategory").value="Movies";msg("");$("posterPreview")?.classList.add("hidden")}
-function renderAdminList(){
- const box=$("adminMovieList");if(!box)return;const list=getTitles();
- console.log("Tamilflix admin titles:", list);
- box.innerHTML=list.length?list.map(m=>`<div class="admin-movie-item"><img src="${m.poster||"https://placehold.co/100x150?text=Poster"}" alt="" onerror="this.src='https://placehold.co/100x150?text=Poster'"><div class="admin-title"><strong>${esc(m.title)}</strong><small>${esc(m.year||"")} · ${esc(m.category||"Movies")}</small></div><button type="button" data-edit-title="${esc(m.id)}">Edit</button><button type="button" data-delete-title="${esc(m.id)}">Delete</button></div>`).join(""):'<p class="muted">No titles saved.</p>';
+function renderAdminList() {
+    const box = $("adminMovieList");
+
+    if (!box) {
+        msg("Error: adminMovieList element not found.", true);
+        return;
+    }
+
+    const list = getTitles();
+
+    // Display diagnostic information inside the Admin Panel
+    if (!Array.isArray(list)) {
+        box.innerHTML =
+            '<p class="muted">Error: Movie titles data is not an array.</p>';
+        return;
+    }
+
+    if (list.length === 0) {
+        box.innerHTML =
+            '<p class="muted">No titles found in browser storage.</p>';
+
+        msg("No movie titles found. Checking the saved data is required.", true);
+        return;
+    }
+
+    box.innerHTML = list.map(m => `
+        <div class="admin-movie-item">
+            <img
+                src="${esc(m.poster || "https://placehold.co/100x150?text=Poster")}"
+                alt=""
+                onerror="this.onerror=null;this.src='https://placehold.co/100x150?text=Poster'"
+            >
+
+            <div class="admin-title">
+                <strong>${esc(m.title || "Untitled")}</strong>
+                <small>${esc(m.year || "")} · ${esc(m.category || "Movies")}</small>
+            </div>
+
+            <button
+                type="button"
+                data-edit-title="${esc(m.id)}"
+            >Edit</button>
+
+            <button
+                type="button"
+                data-delete-title="${esc(m.id)}"
+            >Delete</button>
+        </div>
+    `).join("");
+
+    msg("Loaded " + list.length + " movie title(s).");
 }
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fillForm(id){const m=getTitles().find(x=>String(x.id)===String(id));if(!m)return;
