@@ -369,7 +369,7 @@
         if (!featured.length) return;
 
         heroIndex = (
-            (heroIndex % featured.length) + featured.length
+            ((heroIndex % featured.length) + featured.length)
         ) % featured.length;
 
         const item = featured[heroIndex];
@@ -418,6 +418,95 @@
             heroIndex++;
             renderHero();
         }, 5000);
+    }
+
+    // Convert a Google Drive share URL into an embeddable preview URL.
+    function getEmbedUrl(rawUrl) {
+        try {
+            const url = new URL(rawUrl);
+            const host = url.hostname.toLowerCase();
+
+            if (
+                host === "drive.google.com" ||
+                host === "www.drive.google.com"
+            ) {
+                const match = url.pathname.match(
+                    /\/file\/d\/([a-zA-Z0-9_-]+)/
+                );
+
+                const id = match
+                    ? match[1]
+                    : url.searchParams.get("id");
+
+                return id
+                    ? "https://drive.google.com/file/d/" +
+                        encodeURIComponent(id) + "/preview"
+                    : "";
+            }
+
+            return url.protocol === "https:" ? url.href : "";
+        } catch (error) {
+            return "";
+        }
+    }
+
+    // Show video inside a Tamilflix modal.
+    function openPlayer(item, video, language) {
+        const url = getEmbedUrl(video);
+
+        if (!url) {
+            toast("Invalid video URL.");
+            return;
+        }
+
+        let modal = document.getElementById("tamilflixPlayerModal");
+
+        if (!modal) {
+            modal = document.createElement("div");
+            modal.id = "tamilflixPlayerModal";
+
+            modal.style.cssText =
+                "position:fixed;inset:0;z-index:99999;" +
+                "background:#000e;display:flex;align-items:center;" +
+                "justify-content:center;padding:12px;";
+
+            modal.innerHTML = `
+                <div style="width:100%;max-width:950px;background:#111;color:white">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;gap:12px">
+                        <strong id="tfPlayerTitle"></strong>
+                        <button type="button" id="tfPlayerClose">✕ Close</button>
+                    </div>
+                    <div style="position:relative;width:100%;aspect-ratio:16/9">
+                        <iframe id="tfPlayerFrame"
+                            title="Tamilflix video player"
+                            style="position:absolute;inset:0;width:100%;height:100%;border:0"
+                            allow="autoplay; fullscreen; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            document.getElementById("tfPlayerClose")
+                .addEventListener("click", () => {
+                    document.getElementById("tfPlayerFrame").src = "";
+                    modal.remove();
+                });
+
+            modal.addEventListener("click", event => {
+                if (event.target === modal) {
+                    document.getElementById("tfPlayerFrame").src = "";
+                    modal.remove();
+                }
+            });
+        }
+
+        document.getElementById("tfPlayerTitle").textContent =
+            item.title + " • " + language;
+
+        document.getElementById("tfPlayerFrame").src = url;
     }
 
     function openMovie(id) {
@@ -500,7 +589,7 @@
 
                         <button
                             class="watch-download-btn"
-                            data-download-movie="${escapeHtml(item.id)}
+                            data-download-movie="${escapeHtml(item.id)}"
                         >⬇ DOWNLOAD</button>
 
                         <button
@@ -789,23 +878,16 @@
 
             const video = videoFor(item, language);
 
-            if (video) {
-                window.TamilflixPlayer?.open({
-                    ...item,
-                    video,
-                    language
-                });
-
-                if (!window.TamilflixPlayer?.open) {
-                    window.open(video, "_blank", "noopener,noreferrer");
-                }
-            } else {
+            if (!video) {
                 toast("Add an authorised video URL for this language.");
+                return;
             }
 
+            openPlayer(item, video, language);
             return;
         }
 
+        // Download behaviour is intentionally unchanged.
         const download = event.target.closest("[data-download-movie]");
 
         if (download) {
@@ -895,6 +977,14 @@
             document.querySelectorAll(".modal").forEach(modal => {
                 modal.classList.add("hidden");
             });
+
+            const playerModal = document.getElementById("tamilflixPlayerModal");
+
+            if (playerModal) {
+                const frame = document.getElementById("tfPlayerFrame");
+                if (frame) frame.src = "";
+                playerModal.remove();
+            }
         }
     });
 
